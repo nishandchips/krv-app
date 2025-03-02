@@ -172,7 +172,7 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen bg-[var(--background)] flex-col" style={{ height: '100vh', overflow: 'hidden' }}>
-      <DynamicBackground unsplashAccessKey={process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY} />
+      <DynamicBackground />
       
       {/* Banner with semi-transparent overlay */}
       <div className="flex-shrink-0 h-16 md:h-20 flex items-center justify-center bg-black/70 backdrop-blur-md relative z-10">

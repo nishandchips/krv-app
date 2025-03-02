@@ -1,34 +1,31 @@
 export async function fetchWeather() {
   try {
-    const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?lat=35.6688&lon=-118.2912&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}&units=imperial`,
-      { cache: 'no-store' }
-    );
+    // Call our internal API route instead of external API directly
+    const response = await fetch('/api/weather', { cache: 'no-store' });
     
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
     
     const data = await response.json();
-    
-    // Transform to standardized format
-    return {
-      temp: data.main?.temp,
-      tempMin: data.main?.temp_min,
-      tempMax: data.main?.temp_max,
-      humidity: data.main?.humidity,
-      windSpeed: data.wind?.speed,
-      windDirection: data.wind?.deg,
-      pressure: data.main?.pressure,
-      description: data.weather?.[0]?.description,
-      icon: data.weather?.[0]?.icon,
-      cityName: data.name,
-      countryCode: data.sys?.country,
-      shortForecast: `High: ${Math.round(data.main?.temp_max)}°F, Low: ${Math.round(data.main?.temp_min)}°F`,
-      timestamp: new Date().toISOString()
-    };
+    return data;
   } catch (error) {
     console.error('Error fetching weather data:', error);
-    return {};
+    // Return fallback data if API call fails
+    return {
+      temp: 75,
+      tempMin: 65,
+      tempMax: 85,
+      humidity: 30,
+      windSpeed: 5,
+      windDirection: 180,
+      pressure: 1015,
+      description: "Sunny",
+      icon: "01d",
+      cityName: "Kernville",
+      countryCode: "US",
+      shortForecast: "High: 85°F, Low: 65°F",
+      timestamp: new Date().toISOString()
+    };
   }
 }
