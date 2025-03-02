@@ -1,21 +1,183 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: 215 25% 12%; /* Dark blue-gray background */
+    --foreground: 0 0% 100%; /* White text */
+    --card: 215 25% 18%; /* Slightly lighter blue-gray for cards */
+    --card-foreground: 0 0% 100%; /* White text on cards */
+    --border: 215 25% 25%; /* Subtle border color */
+    --primary: 210 100% 50%; /* Bright blue for accents */
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --input: 240 5.9% 90%;
+    --ring: 240 10% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+  }
+  .dark {
+    --background: 215 25% 12%;
+    --foreground: 0 0% 100%;
+    --card: 215 25% 18%;
+    --card-foreground: 0 0% 100%;
+    --border: 215 25% 25%;
+    --primary: 210 100% 50%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --input: 240 5.9% 90%;
+    --ring: 240 10% 3.9%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+
+  html {
+    font-family: 'Inter', sans-serif;
   }
 }
 
+.text-gradient {
+  @apply font-bold;
+  background: linear-gradient(135deg, #60A5FA, #3B82F6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  @apply overflow-hidden;
+  background-color: hsl(var(--background));
+  color: hsl(var(--card-foreground));
+}
+
+.card {
+  @apply bg-[var(--card)] border border-[var(--border)] rounded-xl text-[var(--card-foreground)];
+  background: linear-gradient(180deg, hsl(215 25% 22%), hsl(215 25% 18%));
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5),
+              0 16px 48px rgba(0, 0, 0, 0.3);
+}
+
+.card:hover {
+  @apply shadow-2xl;
+  background: linear-gradient(180deg, hsl(215 25% 24%), hsl(215 25% 20%));
+  transform: translateY(-2px);
+  transition: all 0.2s ease;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6),
+              0 24px 60px rgba(0, 0, 0, 0.4);
+}
+
+.card-content {
+  @apply flex flex-col items-center justify-start h-full p-8;
+  height: calc(100% - 4rem);
+}
+
+.card-title {
+  @apply text-2xl font-semibold tracking-tight;
+  font-family: 'Inter', sans-serif;
+}
+
+.data-value {
+  @apply text-3xl font-bold mb-4;
+  font-family: 'Inter', sans-serif;
+}
+
+.data-label {
+  @apply text-lg font-medium text-blue-400;
+}
+
+/* Update list styling */
+.data-list {
+  @apply w-full overflow-y-auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.2) transparent;
+}
+
+.data-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.data-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.data-list::-webkit-scrollbar-thumb {
+  background-color: rgba(255,255,255,0.2);
+  border-radius: 3px;
+}
+
+/* Add styling for forecast items */
+.forecast-item {
+  @apply rounded-lg bg-[rgba(255,255,255,0.05)];
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.forecast-item:hover {
+  background: rgba(255,255,255,0.08);
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+/* Chart container */
+.chart-container {
+  @apply w-full flex items-center justify-center;
+  height: calc(100% - 8rem); /* More space for charts */
+}
+
+/* Add specific styles for one card view */
+.large-chart {
+  @apply w-full;
+  height: calc(100% - 10rem); /* Even more space in one card view */
+}
+
+/* Update the data section spacing */
+.data-section {
+  @apply text-center mb-6;
+}
+
+@layer components {
+  .card {
+    @apply transition-all duration-200;
+  }
+  
+  .card:hover {
+    @apply shadow-xl;
+  }
+}
+
+/* For the chart lines */
+.recharts-line-curve {
+  filter: drop-shadow(0 0 6px rgba(96, 165, 250, 0.3));
+}
+
+/* For the circular progress indicators */
+.progress-ring {
+  filter: drop-shadow(0 0 8px rgba(96, 165, 250, 0.4));
 }
