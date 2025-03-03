@@ -48,11 +48,11 @@ export default function ClosuresList({ closures, roadConditions = [] }) {
             {roadConditions.map((condition, index) => (
               <div key={`condition-${index}`} className="bg-amber-500/10 p-4 rounded-lg border border-amber-500/30">
                 <p className="font-medium">Highway {condition.highway}</p>
-                <p className="text-xs mt-1 break-words">
+                <p className="text-xs mt-1 break-words whitespace-normal">
                   {condition.description}
                 </p>
                 {condition.location && (
-                  <p className="text-xs mt-1 text-gray-400 break-words">
+                  <p className="text-xs mt-1 text-gray-400 break-words whitespace-normal">
                     {condition.location}
                   </p>
                 )}

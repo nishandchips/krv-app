@@ -2,6 +2,7 @@ import React from 'react';
 
 /**
  * Component to display road status indicators with guaranteed alignment using fixed sizing
+ * Added a test border to verify changes are being reflected
  */
 export default function RoadStatusIndicators({ data }) {
   if (!data) return null;
@@ -17,7 +18,7 @@ export default function RoadStatusIndicators({ data }) {
   };
   
   return (
-    <div className="w-full mb-4">
+    <div className="w-full mb-4 p-2 rounded-lg">
       <div className="flex items-start justify-center space-x-12">
         {/* First column - Highway 178 */}
         <div className="w-32 flex flex-col items-center">

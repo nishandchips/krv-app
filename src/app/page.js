@@ -13,6 +13,7 @@ import Logo from '@/components/Logo';
 import CardNavigation from '@/components/CardNavigation';
 import RiverFlowCard from '@/components/RiverFlowCard';
 import LakeStorageCard from '@/components/LakeStorageCard';
+import RoadClosuresCard from '@/components/cards/RoadClosuresCard';
 
 export default function Home() {
   const [data, setData] = useState({
@@ -228,76 +229,7 @@ export default function Home() {
             {/* Road Closures Card */}
             {activeCards.roadClosures && (
               <div className={`${cardSize.width} ${cardSize.height} mx-auto`}>
-                <Card className="h-full overflow-hidden">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg md:text-xl font-bold">Road Closures</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-3 md:p-4 flex-grow">
-                    <div className="flex flex-col h-full">
-                      <div className="flex justify-center items-center gap-8 mb-6">
-                        <div className="flex flex-col items-center">
-                          <div className="text-base md:text-lg text-center mb-2">Hwy 178</div>
-                          <div className={`h-8 w-8 md:h-10 md:w-10 rounded-full ${data.roadClosures.some(c => c.highway === '178') ? 'bg-red-500' : 'bg-green-500'}`}></div>
-                          {data.roadConditions.some(c => c.highway === '178') && (
-                            <div className="mt-1 text-xs text-amber-400 font-medium text-center">
-                              Conditions Apply
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex flex-col items-center">
-                          <div className="text-base md:text-lg text-center mb-2">Hwy 155</div>
-                          <div className={`h-8 w-8 md:h-10 md:w-10 rounded-full ${data.roadClosures.some(c => c.highway === '155') ? 'bg-red-500' : 'bg-green-500'}`}></div>
-                          {data.roadConditions.some(c => c.highway === '155') && (
-                            <div className="mt-1 text-xs text-amber-400 font-medium text-center">
-                              Conditions Apply
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      
-                      {data.roadClosures.length > 0 || data.roadConditions.length > 0 ? (
-                        <div>
-                          {data.roadClosures.length > 0 && (
-                            <div className="mb-4">
-                              <p className="text-red-500 font-semibold mb-3">Active Closures:</p>
-                              <ul className="space-y-3">
-                                {data.roadClosures.map((closure, index) => (
-                                  <li key={index} className="bg-red-500/10 p-3 rounded-lg border border-red-500/30">
-                                    <p className="font-medium">{closure.highway ? `Highway ${closure.highway}` : 'Road'}</p>
-                                    <p className="text-sm mt-1">{closure.description || 'Road closed'}</p>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                          
-                          {data.roadConditions.length > 0 && (
-                            <div>
-                              <p className="text-amber-400 font-semibold mb-3">Current Conditions:</p>
-                              <ul className="space-y-3">
-                                {data.roadConditions.map((condition, index) => (
-                                  <li key={index} className="bg-amber-500/10 p-3 rounded-lg border border-amber-500/30">
-                                    <p className="font-medium">Highway {condition.highway}</p>
-                                    <p className="text-sm mt-1">{condition.description}</p>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="flex-grow flex items-center justify-center">
-                          <div className="text-center">
-                            <p className="text-green-500 font-medium text-lg mb-2">All roads open</p>
-                            <p className="text-gray-400 text-xs italic">
-                              Road closure info will appear here when available
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
+                <RoadClosuresCard data={{ roadClosures: data.roadClosures, roadConditions: data.roadConditions }} />
               </div>
             )}
 
@@ -470,74 +402,7 @@ export default function Home() {
               switch (currentCard) {
                 case 'roadClosures':
                   return (
-                    <div className={`${cardSize.width} ${cardSize.height}`}>
-                      <Card className="h-full overflow-hidden">
-                        <CardHeader>
-                          <CardTitle>Road Closures</CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-6 flex-grow">
-                          <div className="flex justify-center items-center gap-8 mb-6">
-                            <div className="flex flex-col items-center">
-                              <div className="text-base md:text-lg text-center mb-2">Hwy 178</div>
-                              <div className={`h-8 w-8 md:h-10 md:w-10 rounded-full ${data.roadClosures.some(c => c.highway === '178') ? 'bg-red-500' : 'bg-green-500'}`}></div>
-                              {data.roadConditions.some(c => c.highway === '178') && (
-                                <div className="mt-1 text-xs text-amber-400 font-medium text-center">
-                                  Conditions Apply
-                                </div>
-                              )}
-                            </div>
-                            <div className="flex flex-col items-center">
-                              <div className="text-base md:text-lg text-center mb-2">Hwy 155</div>
-                              <div className={`h-8 w-8 md:h-10 md:w-10 rounded-full ${data.roadClosures.some(c => c.highway === '155') ? 'bg-red-500' : 'bg-green-500'}`}></div>
-                              {data.roadConditions.some(c => c.highway === '155') && (
-                                <div className="mt-1 text-xs text-amber-400 font-medium text-center">
-                                  Conditions Apply
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          
-                          {data.roadClosures.length > 0 || data.roadConditions.length > 0 ? (
-                            <div>
-                              {data.roadClosures.length > 0 && (
-                                <div className="mb-4">
-                                  <p className="text-red-500 font-semibold mb-3">Active Closures:</p>
-                                  <ul className="space-y-3">
-                                    {data.roadClosures.map((closure, index) => (
-                                      <li key={index} className="bg-red-500/10 p-3 rounded-lg border border-red-500/30">
-                                        <p className="font-medium">{closure.highway ? `Highway ${closure.highway}` : 'Road'}</p>
-                                        <p className="text-sm mt-1">{closure.description || 'Road closed'}</p>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              )}
-                              
-                              {data.roadConditions.length > 0 && (
-                                <div>
-                                  <p className="text-amber-400 font-semibold mb-3">Current Conditions:</p>
-                                  <ul className="space-y-3">
-                                    {data.roadConditions.map((condition, index) => (
-                                      <li key={index} className="bg-amber-500/10 p-3 rounded-lg border border-amber-500/30">
-                                        <p className="font-medium">Highway {condition.highway}</p>
-                                        <p className="text-sm mt-1">{condition.description}</p>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              )}
-                            </div>
-                          ) : (
-                            <div className="text-center flex-grow flex flex-col items-center justify-center h-full">
-                              <p className="text-green-500 font-medium text-xl mb-2">All roads open</p>
-                              <p className="text-gray-400">
-                                Road closure information will appear here when available
-                              </p>
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    </div>
+                    <RoadClosuresCard data={{ roadClosures: data.roadClosures, roadConditions: data.roadConditions }} />
                   );
                   
                 case 'lakeStorage':

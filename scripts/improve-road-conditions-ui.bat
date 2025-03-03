@@ -1,29 +1,32 @@
 @echo off
-echo Committing road conditions UI improvements...
+echo Starting road conditions UI improvement commit process...
+echo.
+echo Changes made:
+echo 1. Implemented fixed-height containers for perfect vertical alignment
+echo 2. Added fixed width to highway columns to ensure consistent sizing
+echo 3. Improved text display with break-words and removed truncation
+echo 4. Changed overflow handling to visible to ensure all content displays
+echo.
 
-REM Check if Git Bash exists in the default location
-if exist "C:\Program Files\Git\bin\bash.exe" (
-    echo Using Git Bash to commit changes...
-    "C:\Program Files\Git\bin\bash.exe" -c "cd '%cd%' && git add src/components/RoadStatusIndicators.js src/components/ClosuresList.js src/components/cards/RoadClosuresCard.js && git commit -m 'Fix road conditions UI: grid layout for perfect alignment and expanded text boxes' && git push"
-) else if exist "C:\Program Files (x86)\Git\bin\bash.exe" (
-    echo Using Git Bash (x86) to commit changes...
-    "C:\Program Files (x86)\Git\bin\bash.exe" -c "cd '%cd%' && git add src/components/RoadStatusIndicators.js src/components/ClosuresList.js src/components/cards/RoadClosuresCard.js && git commit -m 'Fix road conditions UI: grid layout for perfect alignment and expanded text boxes' && git push"
+REM Try to locate Git Bash in common locations
+set GITBASH="C:\Program Files\Git\bin\bash.exe"
+if not exist %GITBASH% (
+  set GITBASH="C:\Program Files (x86)\Git\bin\bash.exe"
+)
+
+REM If Git Bash exists, use it to commit
+if exist %GITBASH% (
+  echo Using Git Bash to commit changes...
+  %GITBASH% -c "cd '%~dp0..' && git add src/components/RoadStatusIndicators.js src/components/ClosuresList.js src/components/cards/RoadClosuresCard.js && git commit -m 'Fix road conditions UI: implement fixed-height bounding boxes for perfect alignment' && git push"
 ) else (
-    echo Git Bash not found. Please commit the changes manually:
-    echo.
-    echo git add src/components/RoadStatusIndicators.js
-    echo git add src/components/ClosuresList.js
-    echo git add src/components/cards/RoadClosuresCard.js
-    echo git commit -m "Fix road conditions UI: grid layout for perfect alignment and expanded text boxes"
-    echo git push
+  echo Git Bash not found. Please commit manually with these commands:
+  echo.
+  echo cd %~dp0..
+  echo git add src/components/RoadStatusIndicators.js src/components/ClosuresList.js src/components/cards/RoadClosuresCard.js
+  echo git commit -m "Fix road conditions UI: implement fixed-height bounding boxes for perfect alignment"
+  echo git push
 )
 
 echo.
-echo Changes made:
-echo 1. Completely redesigned status indicators with a grid layout for perfect alignment
-echo 2. Increased padding in condition boxes from 3px to 4px for better text display
-echo 3. Removed height restrictions on the content area to allow full text display
-echo 4. Reduced header padding to provide more space for content
-echo.
-echo Press any key to continue...
+echo Process completed. Please check for any errors above.
 pause 

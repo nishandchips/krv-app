@@ -113,14 +113,21 @@ function extractRoadConditions(data, highwayPrefix) {
       const lines = description.split('\n');
       for (const line of lines) {
         if (conditionKeywords.some(keyword => line.includes(keyword))) {
+          // Return the full line without truncation
           return line.trim();
         }
       }
       
       // If we can't find a specific line but there are conditions in the description
       if (conditionKeywords.some(keyword => description.includes(keyword))) {
-        // Return the first part of the description
-        return description.split('.')[0] + '.';
+        // Find the sentence containing the condition and return the full sentence
+        const sentences = description.split('.');
+        for (const sentence of sentences) {
+          if (conditionKeywords.some(keyword => sentence.includes(keyword))) {
+            return sentence.trim() + '.';
+          }
+        }
+        return description; // Return full description if we can't segment properly
       }
     }
     return null;
