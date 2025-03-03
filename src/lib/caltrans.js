@@ -4,8 +4,8 @@ export async function fetchRoadClosures() {
     const [d8Response, d9Response, hwy178Response, hwy155Response] = await Promise.all([
       fetch('https://cwwp2.dot.ca.gov/data/d8/lcs/lcsStatusD08.json'),
       fetch('https://cwwp2.dot.ca.gov/data/d9/lcs/lcsStatusD09.json'),
-      fetch('https://roads.dot.ca.gov/roadinfo/m178'),
-      fetch('https://roads.dot.ca.gov/roadinfo/m155')
+      fetch('https://roads.dot.ca.gov/roadinfo/sr178'),
+      fetch('https://roads.dot.ca.gov/roadinfo/sr155')
     ]);
     
     // Process closure data from Caltrans API
