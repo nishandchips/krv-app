@@ -8,7 +8,7 @@ export default function ClosuresList({ closures, roadConditions = [] }) {
   const hasInfo = closures.length > 0 || roadConditions.length > 0;
 
   return (
-    <div className="flex-grow overflow-auto max-h-[calc(100%-80px)]">
+    <div className="flex-grow overflow-auto">
       {hasInfo ? (
         <div className="space-y-3">
           {/* Display road closures if any */}
@@ -17,7 +17,7 @@ export default function ClosuresList({ closures, roadConditions = [] }) {
               <p className="text-red-500 font-semibold mb-2 text-center">Active Closures:</p>
               <ul className="space-y-2">
                 {closures.map((closure, index) => (
-                  <li key={`closure-${index}`} className="text-sm bg-red-500/10 p-3 rounded-lg border border-red-500/30">
+                  <li key={`closure-${index}`} className="text-sm bg-red-500/10 p-4 rounded-lg border border-red-500/30">
                     <p className="font-medium">{closure.highway ? `Hwy ${closure.highway}` : 'Road'}</p>
                     <p className="text-xs mt-1 break-words whitespace-normal">{closure.description || 'Road closed'}</p>
                   </li>
@@ -32,15 +32,15 @@ export default function ClosuresList({ closures, roadConditions = [] }) {
               <p className="text-amber-400 font-semibold mb-2 text-center">Current Conditions:</p>
               <ul className="space-y-2">
                 {roadConditions.map((condition, index) => (
-                  <li key={`condition-${index}`} className="text-sm bg-amber-500/10 p-3 rounded-lg border border-amber-500/30">
+                  <li key={`condition-${index}`} className="text-sm bg-amber-500/10 p-4 rounded-lg border border-amber-500/30">
                     <p className="font-medium">Highway {condition.highway}</p>
-                    <div className="text-xs mt-1 break-words whitespace-normal overflow-visible">
+                    <p className="text-xs mt-1 break-words whitespace-normal">
                       {condition.description}
-                    </div>
+                    </p>
                     {condition.location && (
-                      <div className="text-xs mt-1 text-gray-400 break-words whitespace-normal">
+                      <p className="text-xs mt-1 text-gray-400 break-words whitespace-normal">
                         {condition.location}
-                      </div>
+                      </p>
                     )}
                   </li>
                 ))}
