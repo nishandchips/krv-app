@@ -1,16 +1,26 @@
 export async function fetchWeatherForecast() {
   try {
+    console.log('Client: Fetching weather forecast from internal API route');
     // Call our internal API route instead of external API directly
-    const response = await fetch('/api/weather-forecast', { cache: 'no-store' });
+    const response = await fetch('/api/weather-forecast', { 
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache'
+      }
+    });
+    
+    console.log('Client: Weather forecast API response status:', response.status);
     
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
     
     const data = await response.json();
+    console.log('Client: Weather forecast data received, count:', data.length);
+    
     return data;
   } catch (error) {
-    console.error('Error fetching weather forecast:', error);
+    console.error('Client: Error fetching weather forecast:', error);
     // Return fallback data if API call fails
     const today = new Date();
     return [

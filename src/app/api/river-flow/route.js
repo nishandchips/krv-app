@@ -98,13 +98,34 @@ function parseUSACEDataForNorthFork(textData) {
     
     // Find the data rows
     let dataStarted = false;
+    let nfKernColumnIndex = -1; // Will store the index of the NF Kern flow column
     
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
       
-      // Check if we've reached the data section
+      // Check if we've reached the header row and find the NF Kern column index
       if (line.startsWith('Date') && lines[i+1] && lines[i+1].includes('(ft)') && lines[i+1].includes('(ac-ft)')) {
         dataStarted = true;
+        
+        // Find the column index for "NF Kern @Kernville Flow"
+        const headerParts = lines[i].split(/\s+/);
+        for (let j = 0; j < headerParts.length; j++) {
+          if (headerParts[j] === "NF" && headerParts[j+1] === "Kern" && 
+              (headerParts[j+2] === "@Kernville" || headerParts[j+3] === "Flow")) {
+            nfKernColumnIndex = j + 4; // The actual flow value should be 4 columns after "NF"
+            console.log(`Found NF Kern column at index ${nfKernColumnIndex}`);
+            break;
+          }
+        }
+        
+        // If we couldn't find the column automatically, use the last column (which is typically correct)
+        if (nfKernColumnIndex === -1) {
+          // Count the number of columns in the next data row to determine the last column
+          const nextDataRow = lines[i+2].trim().split(/\s+/);
+          nfKernColumnIndex = nextDataRow.length - 1;
+          console.log(`Using last column (index ${nfKernColumnIndex}) for NF Kern flow`);
+        }
+        
         continue;
       }
       
@@ -113,13 +134,13 @@ function parseUSACEDataForNorthFork(textData) {
         // This is a data row
         const parts = line.split(/\s+/);
         
-        if (parts.length >= 6) {
+        if (parts.length >= nfKernColumnIndex && nfKernColumnIndex > 0) {
           const date = parts[0];
           const time = parts[1];
           const timestamp = parseUSACEDate(`${date} ${time}`);
           
-          // North Fork flow is in column 6 (index 5)
-          const flow = parseFloat(parts[5]);
+          // Get the flow from the correct column
+          const flow = parseFloat(parts[nfKernColumnIndex]);
           
           if (!isNaN(flow)) {
             flowData.push({
@@ -222,23 +243,53 @@ function getFlowStatus(fork, flow) {
   }
 }
 
-// Parse USACE date format (e.g., "01MAR2025 1300")
+// Parse USACE date format (e.g., "01MAR2025 1600")
 function parseUSACEDate(dateString) {
   const months = {
     'JAN': 0, 'FEB': 1, 'MAR': 2, 'APR': 3, 'MAY': 4, 'JUN': 5,
     'JUL': 6, 'AUG': 7, 'SEP': 8, 'OCT': 9, 'NOV': 10, 'DEC': 11
   };
   
-  // Extract date parts
-  const dateParts = dateString.match(/(\d{2})([A-Z]{3})(\d{4})\s+(\d{2})(\d{2})/);
-  
-  if (!dateParts) return new Date();
-  
-  const day = parseInt(dateParts[1], 10);
-  const month = months[dateParts[2]];
-  const year = parseInt(dateParts[3], 10);
-  const hour = parseInt(dateParts[4], 10);
-  const minute = 0; // Minutes are not provided in the data
-  
-  return new Date(year, month, day, hour, minute);
+  try {
+    // Split the date string into date and time parts
+    const [datePart, timePart] = dateString.trim().split(/\s+/);
+    
+    // Extract date components
+    const dateMatch = datePart.match(/(\d{2})([A-Z]{3})(\d{4})/);
+    if (!dateMatch) {
+      console.error(`Invalid date format: ${datePart}`);
+      return new Date(); // Return current date as fallback
+    }
+    
+    const day = parseInt(dateMatch[1], 10);
+    const month = months[dateMatch[2]];
+    const year = parseInt(dateMatch[3], 10);
+    
+    // Parse military time (e.g., "1600" -> 16:00)
+    let hour = 0;
+    let minute = 0;
+    
+    if (timePart) {
+      // Handle 4-digit military time (e.g., "1600")
+      if (timePart.length === 4) {
+        hour = parseInt(timePart.substring(0, 2), 10);
+        minute = parseInt(timePart.substring(2, 4), 10);
+      } 
+      // Handle 3-digit military time (e.g., "800")
+      else if (timePart.length === 3) {
+        hour = parseInt(timePart.substring(0, 1), 10);
+        minute = parseInt(timePart.substring(1, 3), 10);
+      }
+      // Handle other formats
+      else {
+        hour = parseInt(timePart, 10);
+      }
+    }
+    
+    console.log(`Parsed date: ${year}-${month+1}-${day} ${hour}:${minute} from "${dateString}"`);
+    return new Date(year, month, day, hour, minute);
+  } catch (error) {
+    console.error(`Error parsing date "${dateString}":`, error);
+    return new Date(); // Return current date as fallback
+  }
 } 

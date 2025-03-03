@@ -9,7 +9,9 @@
     "lint": "next lint",
     "strip-exif": "node scripts/strip-exif.js",
     "strip-exif-win": "node scripts/strip-exif-windows.js",
-    "check-image": "node scripts/check-image.js"
+    "check-image": "node scripts/check-image.js",
+    "check-amplify": "node scripts/check-amplify-config.js",
+    "check-weather": "node scripts/check-weather-api.js"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.7.2",

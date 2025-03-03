@@ -1,22 +1,45 @@
 export async function GET() {
   try {
-    // API key is only accessible on the server
-    const apiKey = process.env.OPENWEATHER_API_KEY || process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
+    // Try server-side API key first
+    let apiKey = process.env.OPENWEATHER_API_KEY;
+    let usingPublicKey = false;
+    
+    console.log('Weather Forecast API: Using server-side API key:', apiKey ? 'Server API key is set' : 'Server API key is missing');
+    
+    // If server-side key is missing, fall back to public key
+    if (!apiKey) {
+      apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
+      usingPublicKey = true;
+      console.log('Weather Forecast API: Falling back to public API key:', apiKey ? 'Public API key is set' : 'Public API key is missing');
+    }
     
     if (!apiKey) {
       throw new Error('OpenWeather API key is not configured');
     }
     
+    const url = `https://api.openweathermap.org/data/2.5/forecast?lat=35.6688&lon=-118.2912&units=imperial&appid=${apiKey}`;
+    console.log('Weather Forecast API: Fetching from URL:', url.replace(apiKey, 'API_KEY_HIDDEN'), usingPublicKey ? '(using public key)' : '(using server key)');
+    
     const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/forecast?lat=35.6688&lon=-118.2912&units=imperial&appid=${apiKey}`,
-      { cache: 'no-store' }
+      url,
+      { 
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      }
     );
+    
+    console.log('Weather Forecast API: Response status:', response.status);
     
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
     
     const data = await response.json();
+    console.log('Weather Forecast API: Received data list length:', data.list?.length || 0);
     
     // Process the 5-day forecast (every 3 hours, 40 data points)
     // We'll take one per day (at noon) to get a 5-day forecast
@@ -76,6 +99,8 @@ export async function GET() {
       }
     }
     
+    console.log('Weather Forecast API: Processed forecast count:', dailyForecasts.length);
+    
     return Response.json(dailyForecasts);
   } catch (error) {
     console.error('Error fetching weather forecast:', error);
@@ -129,6 +154,8 @@ export async function GET() {
         windSpeed: 9
       }
     ];
+    
+    console.log('Weather Forecast API: Returning fallback data due to error:', error.message);
     
     return Response.json(
       fallbackData,
