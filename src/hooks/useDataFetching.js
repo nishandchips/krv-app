@@ -8,6 +8,7 @@ import { fetchWeatherForecast } from '@/lib/api/weatherForecast';
 export function useDataFetching() {
   const [data, setData] = useState({
     roadClosures: [],
+    roadConditions: [],
     lakeData: [],
     riverData: { northFork: [], southFork: [] },
     weather: {},
@@ -18,7 +19,7 @@ export function useDataFetching() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [roadClosures, lakeData, riverData, weather, weatherForecast] = await Promise.all([
+        const [roadData, lakeData, riverData, weather, weatherForecast] = await Promise.all([
           fetchRoadClosures(),
           fetchLakeLevels(),
           fetchRiverFlow(),
@@ -27,7 +28,8 @@ export function useDataFetching() {
         ]);
 
         setData({
-          roadClosures,
+          roadClosures: roadData.roadClosures || [],
+          roadConditions: roadData.roadConditions || [],
           lakeData,
           riverData,
           weather,
