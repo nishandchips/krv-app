@@ -4,11 +4,11 @@ import ClosuresList from "@/components/ClosuresList";
 
 export default function RoadClosuresCard({ data, viewMode }) {
   return (
-    <Card className="h-full">
-      <CardHeader>
+    <Card className="h-full flex flex-col">
+      <CardHeader className="pb-2">
         <CardTitle>Road Conditions</CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 p-3 md:p-4 space-y-3">
+      <CardContent className="flex-1 p-3 md:p-4 space-y-3 overflow-hidden flex flex-col">
         <RoadStatusIndicators data={data} viewMode={viewMode} />
         <ClosuresList 
           closures={data.roadClosures || []} 

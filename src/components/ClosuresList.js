@@ -8,7 +8,7 @@ export default function ClosuresList({ closures, roadConditions = [] }) {
   const hasInfo = closures.length > 0 || roadConditions.length > 0;
 
   return (
-    <div className="flex-grow">
+    <div className="flex-grow overflow-auto max-h-[calc(100%-80px)]">
       {hasInfo ? (
         <div className="space-y-3">
           {/* Display road closures if any */}
@@ -19,7 +19,7 @@ export default function ClosuresList({ closures, roadConditions = [] }) {
                 {closures.map((closure, index) => (
                   <li key={`closure-${index}`} className="text-sm bg-red-500/10 p-2 rounded-lg border border-red-500/30">
                     <p className="font-medium">{closure.highway ? `Hwy ${closure.highway}` : 'Road'}</p>
-                    <p className="text-xs mt-1">{closure.description || 'Road closed'}</p>
+                    <p className="text-xs mt-1 break-words">{closure.description || 'Road closed'}</p>
                   </li>
                 ))}
               </ul>
@@ -34,8 +34,8 @@ export default function ClosuresList({ closures, roadConditions = [] }) {
                 {roadConditions.map((condition, index) => (
                   <li key={`condition-${index}`} className="text-sm bg-amber-500/10 p-2 rounded-lg border border-amber-500/30">
                     <p className="font-medium">Hwy {condition.highway}</p>
-                    <p className="text-xs mt-1">{condition.description}</p>
-                    {condition.location && <p className="text-xs mt-1 text-gray-400">{condition.location}</p>}
+                    <p className="text-xs mt-1 break-words whitespace-normal">{condition.description}</p>
+                    {condition.location && <p className="text-xs mt-1 text-gray-400 break-words">{condition.location}</p>}
                   </li>
                 ))}
               </ul>
