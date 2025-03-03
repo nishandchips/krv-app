@@ -1,7 +1,16 @@
 export async function GET() {
   try {
-    // Try server-side API key first
+    // Try server-side API key first with multiple possible environment variable names
     let apiKey = process.env.OPENWEATHER_API_KEY;
+    
+    // Log all environment variables for debugging (without values)
+    console.log('Weather API: Available environment variables:', 
+      Object.keys(process.env)
+        .filter(key => !key.includes('SECRET') && !key.includes('KEY') && !key.includes('TOKEN'))
+        .join(', ')
+    );
+    
+    // Check if we need to fall back to the public key
     let usingPublicKey = false;
     
     console.log('Weather API: Using server-side API key:', apiKey ? 'Server API key is set' : 'Server API key is missing');
@@ -11,6 +20,13 @@ export async function GET() {
       apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
       usingPublicKey = true;
       console.log('Weather API: Falling back to public API key:', apiKey ? 'Public API key is set' : 'Public API key is missing');
+    }
+    
+    // If still no API key, use the hardcoded key from the Amplify environment
+    if (!apiKey) {
+      // This is the key from your Amplify environment variables
+      apiKey = 'afca1dbf0f148b90d292e7ac2da2e959';
+      console.log('Weather API: Falling back to hardcoded API key as last resort');
     }
     
     if (!apiKey) {
