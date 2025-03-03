@@ -17,6 +17,12 @@ frontend:
     baseDirectory: .next
     files:
       - '**/*'
+    # Explicitly include the public directory
+    secondaryArtifacts:
+      - baseDirectory: public
+        files:
+          - '**/*'
+        destination: /public
   cache:
     paths:
       - node_modules/**/*

@@ -13,6 +13,7 @@ A real-time dashboard for the Kern River Valley, providing information on:
 - Real-time data with automatic and manual refresh options
 - Interactive charts for river flow and lake storage data
 - Toggle between tiled view (all cards) and single card view
+- Custom background image support with EXIF data stripping for privacy
 
 ## Technologies Used
 
@@ -21,6 +22,7 @@ A real-time dashboard for the Kern River Valley, providing information on:
 - Tailwind CSS
 - Recharts for data visualization
 - Server-side API integration
+- Sharp for image processing
 
 ## Getting Started
 
@@ -42,12 +44,43 @@ cd krv-app
 npm install
 ```
 
-3. Run the development server
+3. Add a custom background image (optional)
+```
+# Add your image to the public/images directory
+
+# Strip EXIF data for privacy (recommended)
+# For Windows:
+npm run strip-exif-win -- "C:\path\to\your\image.jpg" "public\images\kern-river-background.jpg"
+# OR use the batch file:
+scripts\strip-exif-win.bat "C:\path\to\your\image.jpg" "public\images\kern-river-background.jpg"
+
+# For Linux/Mac/WSL:
+npm run strip-exif -- /path/to/your/image.jpg public/images/kern-river-background.jpg
+# OR use the shell script:
+./scripts/strip-exif.sh /path/to/your/image.jpg public/images/kern-river-background.jpg
+```
+
+4. Run the development server
 ```
 npm run dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
+5. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+## Custom Background Image
+
+The app supports using your own background image:
+
+1. Place your image in the `public/images` directory
+2. For privacy, strip EXIF data using the included tool:
+   ```
+   # For Windows:
+   npm run strip-exif-win -- "C:\path\to\your\image.jpg" "public\images\kern-river-background.jpg"
+   
+   # For Linux/Mac/WSL:
+   npm run strip-exif -- /path/to/your/image.jpg public/images/kern-river-background.jpg
+   ```
+3. See `public/images/README.md` for more details
 
 ## Deployment
 

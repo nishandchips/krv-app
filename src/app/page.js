@@ -179,39 +179,41 @@ export default function Home() {
         <Logo />
       </div>
 
-      {/* View mode toggles with improved styling */}
+      {/* View mode toggles with improved styling and proper centering */}
       <div className="flex justify-center items-center py-2 bg-black/30 relative z-10">
-        <div className="container mx-auto flex justify-center items-center">
-          <button
-            onClick={() => toggleViewMode('tiled')}
-            className={`p-2 rounded-lg transition-all ${
-              viewMode === 'tiled' 
-                ? 'bg-blue-500 text-white' 
-                : 'bg-gray-200 hover:bg-gray-300'
-            }`}
-            title="Tiled View"
-            aria-label="Switch to tiled view"
-          >
-            <div className="grid grid-cols-2 gap-1 w-6 h-6">
-              <div className="bg-current rounded-sm"></div>
-              <div className="bg-current rounded-sm"></div>
-              <div className="bg-current rounded-sm"></div>
-              <div className="bg-current rounded-sm"></div>
-            </div>
-          </button>
-          
-          <button
-            onClick={() => toggleViewMode('oneCard')}
-            className={`p-2 rounded-lg transition-all ml-4 ${
-              viewMode === 'oneCard' 
-                ? 'bg-blue-500 text-white' 
-                : 'bg-gray-200 hover:bg-gray-300'
-            }`}
-            title="Single Card View"
-            aria-label="Switch to single card view"
-          >
-            <div className="w-6 h-6 bg-current rounded-sm"></div>
-          </button>
+        <div className="flex justify-center items-center w-full">
+          <div className="inline-flex justify-center items-center">
+            <button
+              onClick={() => toggleViewMode('tiled')}
+              className={`p-2 rounded-lg transition-all ${
+                viewMode === 'tiled' 
+                  ? 'bg-blue-500 text-white' 
+                  : 'bg-gray-200 hover:bg-gray-300'
+              }`}
+              title="Tiled View"
+              aria-label="Switch to tiled view"
+            >
+              <div className="grid grid-cols-2 gap-1 w-6 h-6">
+                <div className="bg-current rounded-sm"></div>
+                <div className="bg-current rounded-sm"></div>
+                <div className="bg-current rounded-sm"></div>
+                <div className="bg-current rounded-sm"></div>
+              </div>
+            </button>
+            
+            <button
+              onClick={() => toggleViewMode('oneCard')}
+              className={`p-2 rounded-lg transition-all ml-4 ${
+                viewMode === 'oneCard' 
+                  ? 'bg-blue-500 text-white' 
+                  : 'bg-gray-200 hover:bg-gray-300'
+              }`}
+              title="Single Card View"
+              aria-label="Switch to single card view"
+            >
+              <div className="w-6 h-6 bg-current rounded-sm"></div>
+            </button>
+          </div>
         </div>
       </div>
 

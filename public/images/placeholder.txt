@@ -1,0 +1,8 @@
+Please add your own image file named "kern-river-background.jpg" to this directory.
+
+The application is looking for a file at:
+/public/images/kern-river-background.jpg
+
+Until you add this file, the background may appear broken or missing.
+
+See the README.md file in this directory for more details. 

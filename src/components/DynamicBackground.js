@@ -3,69 +3,61 @@
 import { useState, useEffect } from 'react';
 
 const DynamicBackground = () => {
-  const [image, setImage] = useState(null);
-  const [error, setError] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   
-  // Fallback background if API fails
+  // Custom background image - replace this URL with your own image
+  const customBackgroundImage = "/images/kern-river-background.jpg";
+  
+  // Fallback background color if image fails to load
   const fallbackBackground = {
-    urls: {
-      regular: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max"
-    },
-    user: {
-      name: "Unsplash",
-      links: {
-        html: "https://unsplash.com"
-      }
-    }
+    backgroundColor: "#1a365d", // Deep blue color
+    backgroundImage: "linear-gradient(135deg, #1a365d 0%, #2d3e50 100%)"
   };
   
+  // Preload the image to check if it exists
   useEffect(() => {
-    const fetchImage = async () => {
-      try {
-        // Call our internal API route instead of external API directly
-        const response = await fetch('/api/unsplash');
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        setImage(data);
-        setError(false);
-      } catch (error) {
-        console.error('Error fetching background image:', error);
-        setError(true);
-        // Use fallback image
-        setImage(fallbackBackground);
-      }
+    const img = new Image();
+    img.src = customBackgroundImage;
+    
+    img.onload = () => {
+      console.log("Custom background image loaded successfully.");
+      setImageLoaded(true);
+      setImageError(false);
     };
-
-    fetchImage();
-    // Refresh image every hour
-    const interval = setInterval(fetchImage, 3600000);
-    return () => clearInterval(interval);
-  }, []);
-
-  if (!image) return null;
-
+    
+    img.onerror = () => {
+      console.warn("Custom background image failed to load. Using fallback background.");
+      setImageError(true);
+      setImageLoaded(false);
+    };
+  }, [customBackgroundImage]);
+  
   return (
     <>
       {/* Blurred background for the entire page */}
       <div 
         className="fixed inset-0 z-[-1]"
-        style={{
-          backgroundImage: `url(${image.urls.regular})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          filter: 'blur(8px)',
-          opacity: 0.85,
-        }}
+        style={
+          imageError || !imageLoaded
+            ? { 
+                ...fallbackBackground,
+                opacity: 0.9
+              }
+            : {
+                backgroundImage: `url(${customBackgroundImage})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                filter: 'blur(8px)',
+                opacity: 0.85,
+              }
+        }
       />
       
-      {/* Attribution - only show if not using fallback or if error occurred */}
-      {!error && (
-        <div className="absolute bottom-2 right-2 text-xs text-white bg-black bg-opacity-50 p-1 rounded z-50">
-          Photo by <a href={`${image.user.links.html}?utm_source=dashboard&utm_medium=referral`} target="_blank" rel="noopener noreferrer" className="underline">{image.user.name}</a> on <a href="https://unsplash.com/?utm_source=dashboard&utm_medium=referral" target="_blank" rel="noopener noreferrer" className="underline">Unsplash</a>
+      {/* Add a debug message during development */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="fixed bottom-0 right-0 bg-black/70 text-white p-2 text-xs z-50">
+          Background: {imageLoaded ? 'Custom Image' : 'Fallback Gradient'}
         </div>
       )}
     </>
