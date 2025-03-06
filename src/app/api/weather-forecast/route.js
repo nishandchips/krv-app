@@ -62,61 +62,89 @@ export async function GET(request) {
     const data = await response.json();
     console.log('Weather Forecast API: Received data list length:', data.list?.length || 0);
     
-    // Process the 5-day forecast (every 3 hours, 40 data points)
-    // We'll take one per day (at noon) to get a 5-day forecast
+    // Process the 5-day forecast - properly calculate daily min/max temps
     const dailyForecasts = [];
-    const processedDates = new Set();
+    const forecastsByDay = {};
     
     if (data.list && data.list.length > 0) {
+      // Group forecasts by date
       for (const forecast of data.list) {
         const date = new Date(forecast.dt * 1000);
         const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
         
-        // Only process one forecast per day (preferably around noon)
-        const hour = date.getHours();
-        if (!processedDates.has(dateStr) && (hour >= 11 && hour <= 14)) {
-          processedDates.add(dateStr);
-          
-          dailyForecasts.push({
-            date: dateStr,
-            tempMax: forecast.main.temp_max,
-            tempMin: forecast.main.temp_min,
-            description: forecast.weather[0].description,
-            icon: forecast.weather[0].icon,
-            humidity: forecast.main.humidity,
-            windSpeed: forecast.wind.speed
-          });
-          
-          // Stop after we have 5 days
-          if (dailyForecasts.length >= 5) break;
+        if (!forecastsByDay[dateStr]) {
+          forecastsByDay[dateStr] = {
+            forecasts: [],
+            tempMax: -Infinity,
+            tempMin: Infinity,
+            icons: {},
+            descriptions: {}
+          };
         }
+        
+        // Track all forecasts for this day
+        forecastsByDay[dateStr].forecasts.push(forecast);
+        
+        // Update min/max temperatures
+        if (forecast.main.temp_max > forecastsByDay[dateStr].tempMax) {
+          forecastsByDay[dateStr].tempMax = forecast.main.temp_max;
+        }
+        if (forecast.main.temp_min < forecastsByDay[dateStr].tempMin) {
+          forecastsByDay[dateStr].tempMin = forecast.main.temp_min;
+        }
+        
+        // Count occurrences of each icon and description to find the most common
+        const icon = forecast.weather[0].icon;
+        const description = forecast.weather[0].description;
+        
+        forecastsByDay[dateStr].icons[icon] = (forecastsByDay[dateStr].icons[icon] || 0) + 1;
+        forecastsByDay[dateStr].descriptions[description] = 
+          (forecastsByDay[dateStr].descriptions[description] || 0) + 1;
       }
-    }
-    
-    // If we couldn't get forecasts at noon, just take the first of each day
-    if (dailyForecasts.length < 5 && data.list && data.list.length > 0) {
-      processedDates.clear();
-      dailyForecasts.length = 0;
       
-      for (const forecast of data.list) {
-        const date = new Date(forecast.dt * 1000);
-        const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
+      // Convert grouped data to daily forecasts, finding most common weather condition
+      const dates = Object.keys(forecastsByDay).sort();
+      
+      for (const dateStr of dates) {
+        const dayData = forecastsByDay[dateStr];
         
-        if (!processedDates.has(dateStr)) {
-          processedDates.add(dateStr);
-          
-          dailyForecasts.push({
-            date: dateStr,
-            tempMax: forecast.main.temp_max,
-            tempMin: forecast.main.temp_min,
-            description: forecast.weather[0].description,
-            icon: forecast.weather[0].icon,
-            humidity: forecast.main.humidity,
-            windSpeed: forecast.wind.speed
-          });
-          
-          if (dailyForecasts.length >= 5) break;
+        // Find most common icon and description
+        let mostCommonIcon = null;
+        let maxIconCount = 0;
+        for (const [icon, count] of Object.entries(dayData.icons)) {
+          if (count > maxIconCount) {
+            maxIconCount = count;
+            mostCommonIcon = icon;
+          }
         }
+        
+        let mostCommonDescription = null;
+        let maxDescCount = 0;
+        for (const [desc, count] of Object.entries(dayData.descriptions)) {
+          if (count > maxDescCount) {
+            maxDescCount = count;
+            mostCommonDescription = desc;
+          }
+        }
+        
+        // Get a midday forecast for other values if available
+        const middayForecast = dayData.forecasts.find(f => {
+          const hour = new Date(f.dt * 1000).getHours();
+          return hour >= 10 && hour <= 14;
+        }) || dayData.forecasts[0];
+        
+        dailyForecasts.push({
+          date: dateStr,
+          tempMax: dayData.tempMax,
+          tempMin: dayData.tempMin,
+          description: mostCommonDescription,
+          icon: mostCommonIcon,
+          humidity: middayForecast.main.humidity,
+          windSpeed: middayForecast.wind.speed
+        });
+        
+        // Stop after we have 5 days
+        if (dailyForecasts.length >= 5) break;
       }
     }
     
