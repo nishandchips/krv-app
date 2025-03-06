@@ -150,7 +150,7 @@ export default function Home() {
   const calculateCardSize = () => {
     return {
       width: 'w-full',
-      height: isMobile ? 'h-[320px]' : 'md:h-[calc(50vh-3rem)]'
+      height: isMobile ? 'auto min-h-[280px]' : 'md:h-[calc(50vh-3rem)]'
     };
   };
 
@@ -176,7 +176,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[var(--background)] flex-col" style={{ height: '100vh', overflow: 'hidden' }}>
+    <div className="flex min-h-screen bg-[var(--background)] flex-col">
       <DynamicBackground />
       
       {/* Banner with semi-transparent overlay */}
@@ -185,14 +185,12 @@ export default function Home() {
       </div>
 
       {/* Main content */}
-      <div className="flex-1 overflow-y-auto pt-4 relative z-10">
-        <div className="absolute inset-0 bg-black/30 backdrop-blur-sm -z-10"></div>
-
-        <div className={`container mx-auto grid grid-cols-1 ${isMobile ? '' : 'md:grid-cols-2'} gap-6 px-4`}>
+      <div className="flex-1 py-4 md:py-8 px-4 md:px-8 lg:px-12 container mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
           {/* Road Closures Card */}
           {activeCards.roadClosures && (
             <div className={`${cardSize.width} ${cardSize.height} mx-auto`}>
-              <RoadClosuresCard data={{ roadClosures: data.roadClosures, roadConditions: data.roadConditions }} />
+              <RoadClosuresCard data={{ roadClosures: data.roadClosures, roadConditions: data.roadConditions, timestamp: lastRefresh }} />
             </div>
           )}
 
