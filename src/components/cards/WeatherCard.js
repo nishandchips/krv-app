@@ -9,8 +9,8 @@ export default function WeatherCard({ data, weatherForecast, cardContentState, n
   return (
     <div className="h-full flex flex-col">
       <Card className="h-full flex-grow overflow-hidden">
-        <CardHeader className="flex flex-row items-center justify-between p-3">
-          <CardTitle className="text-base">Weather</CardTitle>
+        <CardHeader className="flex flex-row items-center justify-between p-3 pb-1">
+          <CardTitle className="text-lg">Weather</CardTitle>
           <div className="relative">
             <select 
               className="bg-gray-800 text-white border border-gray-700 rounded p-1 text-xs"
@@ -31,74 +31,74 @@ export default function WeatherCard({ data, weatherForecast, cardContentState, n
             </select>
           </div>
         </CardHeader>
-        <CardContent className="p-3 overflow-auto">
+        <CardContent className="p-3 overflow-hidden">
           {currentView === 0 ? (
-            // Current weather view - more compact
-            <div className="flex flex-col h-full">
-              <div className="text-center mb-2">
+            // Current weather view - compact layout without excess space
+            <div className="flex flex-col">
+              <div className="text-center mb-3">
                 <div className="flex items-center justify-center">
                   {data.icon && (
                     <img 
                       src={`https://openweathermap.org/img/wn/${data.icon}@2x.png`} 
                       alt={data.description || "Weather"} 
-                      className="w-10 h-10"
+                      className="w-14 h-14"
                     />
                   )}
-                  <p className="text-2xl font-bold">{data.temp ? `${Math.round(data.temp)}°F` : 'N/A'}</p>
+                  <p className="text-4xl font-bold">{data.temp ? `${Math.round(data.temp)}°F` : 'N/A'}</p>
                 </div>
-                <p className="text-xs mb-1 capitalize">{data.description || 'Weather unavailable'}</p>
+                <p className="text-base capitalize">{data.description || 'Weather unavailable'}</p>
               </div>
               
               <div className="grid grid-cols-2 gap-2 text-center">
                 <div className="bg-gray-800/30 p-2 rounded">
-                  <p className="text-xs text-blue-400">Humidity</p>
-                  <p className="text-sm">{data.humidity ? `${data.humidity}%` : 'N/A'}</p>
+                  <p className="text-sm text-blue-400">Humidity</p>
+                  <p className="text-lg">{data.humidity ? `${data.humidity}%` : 'N/A'}</p>
                 </div>
                 <div className="bg-gray-800/30 p-2 rounded">
-                  <p className="text-xs text-blue-400">Wind</p>
-                  <p className="text-sm">{data.windSpeed ? `${Math.round(data.windSpeed)} mph` : 'N/A'}</p>
+                  <p className="text-sm text-blue-400">Wind</p>
+                  <p className="text-lg">{data.windSpeed ? `${Math.round(data.windSpeed)} mph` : 'N/A'}</p>
                 </div>
                 <div className="bg-gray-800/30 p-2 rounded">
-                  <p className="text-xs text-blue-400">High</p>
-                  <p className="text-sm">{data.tempMax ? `${Math.round(data.tempMax)}°F` : 'N/A'}</p>
+                  <p className="text-sm text-blue-400">High</p>
+                  <p className="text-lg">{data.tempMax ? `${Math.round(data.tempMax)}°F` : 'N/A'}</p>
                 </div>
                 <div className="bg-gray-800/30 p-2 rounded">
-                  <p className="text-xs text-blue-400">Low</p>
-                  <p className="text-sm">{data.tempMin ? `${Math.round(data.tempMin)}°F` : 'N/A'}</p>
+                  <p className="text-sm text-blue-400">Low</p>
+                  <p className="text-lg">{data.tempMin ? `${Math.round(data.tempMin)}°F` : 'N/A'}</p>
                 </div>
               </div>
             </div>
           ) : (
-            // Forecast view - more compact
+            // Forecast view - optimized to prevent overflow
             <div className="h-full">
-              <p className="text-center text-blue-400 mb-1 text-xs">5-Day Forecast</p>
+              <p className="text-center text-blue-400 mb-2 text-sm">5-Day Forecast</p>
               {weatherForecast && weatherForecast.length > 0 ? (
-                <div className="space-y-1">
+                <div className="space-y-2 overflow-y-auto" style={{ maxHeight: 'calc(100% - 30px)' }}>
                   {weatherForecast.slice(0, 5).map((day, idx) => (
-                    <div key={idx} className="p-1 bg-gray-800/30 rounded flex items-center">
-                      <div className="w-7 h-7 mr-1">
+                    <div key={idx} className="p-2 bg-gray-800/30 rounded flex items-center">
+                      <div className="w-10 h-10 mr-2 flex-shrink-0">
                         {day.icon && (
                           <img 
-                            src={`https://openweathermap.org/img/wn/${day.icon}.png`} 
+                            src={`https://openweathermap.org/img/wn/${day.icon}@2x.png`} 
                             alt={day.description} 
                             className="w-full h-full"
                           />
                         )}
                       </div>
-                      <div className="flex-grow">
-                        <p className="font-medium text-xs">{new Date(day.date).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' })}</p>
-                        <p className="text-[10px] capitalize truncate">{day.description}</p>
+                      <div className="flex-grow min-w-0">
+                        <p className="font-medium text-sm">{new Date(day.date).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' })}</p>
+                        <p className="text-xs capitalize truncate">{day.description}</p>
                       </div>
-                      <div className="text-right text-xs ml-1">
-                        <p className="font-medium">{day.tempMax ? `${Math.round(day.tempMax)}°` : '-'}</p>
-                        <p className="text-gray-400">{day.tempMin ? `${Math.round(day.tempMin)}°` : '-'}</p>
+                      <div className="text-right ml-2 flex-shrink-0">
+                        <p className="font-medium text-sm">{day.tempMax ? `${Math.round(day.tempMax)}°` : '-'}</p>
+                        <p className="text-xs text-gray-400">{day.tempMin ? `${Math.round(day.tempMin)}°` : '-'}</p>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="flex items-center justify-center h-full text-gray-400">
-                  <p className="text-xs">No forecast available</p>
+                <div className="flex items-center justify-center flex-grow">
+                  <p className="text-sm text-gray-400">No forecast available</p>
                 </div>
               )}
             </div>
@@ -107,7 +107,7 @@ export default function WeatherCard({ data, weatherForecast, cardContentState, n
       </Card>
       
       {/* Navigation between current weather and forecast */}
-      <div className="mt-1 flex justify-center">
+      <div className="mt-2 flex justify-center">
         <CardNavigation 
           onPrev={() => navigateCardContent && navigateCardContent('weather', 'prev')}
           onNext={() => navigateCardContent && navigateCardContent('weather', 'next')}
