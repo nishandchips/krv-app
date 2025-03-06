@@ -1,24 +1,49 @@
+import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import DynamicLineChart from '@/components/DynamicLineChart';
 
 export default function LakeStorageCard({ data }) {
-  const currentLakeStorage = data.lakeData.length > 0 
-    ? data.lakeData[data.lakeData.length - 1].level 
-    : 'N/A';
+  const [viewMode, setViewMode] = useState('storage'); // 'elevation' or 'storage'
+  
+  const currentData = data.lakeData.length > 0 
+    ? data.lakeData[data.lakeData.length - 1]
+    : null;
+  
   const recentLakeData = data.lakeData.slice(-30);
+
+  const toggleViewMode = () => {
+    setViewMode(viewMode === 'elevation' ? 'storage' : 'elevation');
+  };
+
+  // Handle potential data issues gracefully
+  const hasValidData = currentData && 
+    typeof currentData.elevation !== 'undefined' && 
+    typeof currentData.storage !== 'undefined' &&
+    !isNaN(currentData.elevation) && 
+    !isNaN(currentData.storage);
 
   return (
     <Card className="h-full">
-      <CardHeader>
-        <CardTitle>Lake Isabella Storage</CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Lake Isabella</CardTitle>
+        <button 
+          onClick={toggleViewMode}
+          className="px-2 py-1 text-xs rounded bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 transition-colors"
+        >
+          Show {viewMode === 'elevation' ? 'Volume' : 'Elevation'}
+        </button>
       </CardHeader>
       <CardContent className="flex-1 p-6">
         <div className="text-center mb-6">
-          <p className="text-blue-400 mb-2">Current Storage</p>
+          <p className="text-blue-400 mb-2">
+            {viewMode === 'elevation' ? 'Current Elevation' : 'Current Storage'}
+          </p>
           <p className="text-4xl font-bold">
-            {typeof currentLakeStorage === 'number' 
-              ? `${Math.round(currentLakeStorage).toLocaleString()} acre-ft`
-              : 'N/A'
+            {hasValidData
+              ? (viewMode === 'elevation' 
+                ? `${currentData.elevation.toFixed(2)} ft`
+                : `${Math.round(currentData.storage).toLocaleString()} acre-ft`)
+              : 'Data Unavailable'
             }
           </p>
         </div>
@@ -26,9 +51,10 @@ export default function LakeStorageCard({ data }) {
           {recentLakeData.length > 0 ? (
             <DynamicLineChart
               data={recentLakeData}
-              dataKey="level"
+              dataKey={viewMode === 'elevation' ? 'elevation' : 'storage'}
               stroke="#60A5FA"
-              isLakeStorage={true}
+              isLakeElevation={viewMode === 'elevation'}
+              isLakeStorage={viewMode === 'storage'}
               height={250}
             />
           ) : (

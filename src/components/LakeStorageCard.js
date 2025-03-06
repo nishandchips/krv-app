@@ -27,17 +27,34 @@ const LakeStorageCard = ({ data }) => {
   };
   
   // Format the elevation value
-  const formatElevation = (volumeValue) => {
-    if (volumeValue === null || volumeValue === undefined) return 'N/A';
-    
-    // Convert acre-feet to elevation using approximation formula for Lake Isabella
-    // This is a simple approximation - replace with a more accurate formula if available
-    const elevation = calculateElevationFromVolume(volumeValue);
-    return elevation.toLocaleString() + ' ft';
+  const formatElevation = (value) => {
+    if (value === null || value === undefined) return 'N/A';
+    return value.toLocaleString() + ' ft';
   };
   
-  // Calculate elevation from volume (acre-feet)
-  // This is an approximation for Lake Isabella based on historical data
+  // Get the current storage (most recent data point)
+  const getCurrentStorage = () => {
+    if (!data || data.length === 0) return null;
+    // Use storage property if available, fall back to level for backward compatibility
+    const latestData = data[data.length - 1];
+    return latestData.storage !== undefined ? latestData.storage : latestData.level;
+  };
+  
+  // Get the current elevation (most recent data point)
+  const getCurrentElevation = () => {
+    if (!data || data.length === 0) return null;
+    // Use elevation property if available, otherwise calculate from storage
+    const latestData = data[data.length - 1];
+    if (latestData.elevation !== undefined) {
+      return latestData.elevation;
+    } else {
+      // Fall back to calculating elevation from storage/level
+      const storage = latestData.storage !== undefined ? latestData.storage : latestData.level;
+      return calculateElevationFromVolume(storage);
+    }
+  };
+  
+  // Calculate elevation from volume (acre-feet) - used as fallback if elevation not provided
   const calculateElevationFromVolume = (volumeAcreFeet) => {
     // Simple approximation - Lake Isabella is approx 2,500 feet when empty and 2,605 feet when full (568,000 acre-feet)
     const emptyElevation = 2500;
@@ -47,12 +64,6 @@ const LakeStorageCard = ({ data }) => {
     // Linear interpolation between empty and full
     const elevation = emptyElevation + ((volumeAcreFeet / maxCapacity) * (fullElevation - emptyElevation));
     return Math.round(elevation);
-  };
-  
-  // Get the current storage (most recent data point)
-  const getCurrentStorage = () => {
-    if (!data || data.length === 0) return null;
-    return data[data.length - 1].level;
   };
   
   // Get the timestamp of the most recent data point
@@ -73,12 +84,37 @@ const LakeStorageCard = ({ data }) => {
   
   // Get the display value based on the current mode
   const getDisplayValue = () => {
-    const currentStorage = getCurrentStorage();
-    if (currentStorage === null) return 'N/A';
-    
-    return displayMode === 'volume' 
-      ? formatStorage(currentStorage)
-      : formatElevation(currentStorage);
+    if (displayMode === 'volume') {
+      const currentStorage = getCurrentStorage();
+      return currentStorage === null ? 'N/A' : formatStorage(currentStorage);
+    } else {
+      const currentElevation = getCurrentElevation();
+      return currentElevation === null ? 'N/A' : formatElevation(currentElevation);
+    }
+  };
+  
+  // Get the data key to use for the chart based on display mode
+  const getChartDataKey = () => {
+    if (displayMode === 'volume') {
+      // Check if data has storage property, otherwise use level
+      return data[0].storage !== undefined ? 'storage' : 'level';
+    } else {
+      // Check if data has elevation property, otherwise use level and transform
+      return data[0].elevation !== undefined ? 'elevation' : 'level';
+    }
+  };
+  
+  // Format chart tooltip value based on display mode
+  const formatChartTooltip = (value) => {
+    if (displayMode === 'volume') {
+      return formatStorage(value);
+    } else {
+      // If we're showing elevation but using level data, transform the value
+      if (getChartDataKey() === 'level') {
+        return formatElevation(calculateElevationFromVolume(value));
+      }
+      return formatElevation(value);
+    }
   };
   
   // Toggle between volume and elevation display
@@ -119,13 +155,13 @@ const LakeStorageCard = ({ data }) => {
             {data && data.length > 0 ? (
               <DynamicLineChart
                 data={data}
-                dataKey="level"
+                dataKey={getChartDataKey()}
                 stroke="#3B82F6"
                 isLakeStorage={true}
                 height="100%"
                 width="100%"
                 displayMode={displayMode}
-                formatTooltip={(value) => displayMode === 'volume' ? formatStorage(value) : formatElevation(value)}
+                formatTooltip={formatChartTooltip}
               />
             ) : (
               <div className="flex items-center justify-center h-full text-gray-400">

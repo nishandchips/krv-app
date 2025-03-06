@@ -4,12 +4,17 @@ import React from 'react';
  * Component to display a list of road closures and conditions
  * Styled to match other card components
  */
-export default function ClosuresList({ closures, roadConditions = [], timestamp }) {
+export default function ClosuresList({ closures, roadConditions = [], timestamp, selectedHighway }) {
   // Check if there are any closures or conditions
   const hasInfo = closures?.length > 0 || roadConditions?.length > 0;
   
   // Format timestamp if available
   const formattedTime = timestamp ? new Date(timestamp).toLocaleString() : null;
+
+  // Filter conditions based on the selected highway if one is selected
+  const filteredConditions = selectedHighway 
+    ? roadConditions.filter(condition => condition.highway === selectedHighway)
+    : roadConditions;
 
   if (!hasInfo) {
     return (
@@ -56,11 +61,15 @@ export default function ClosuresList({ closures, roadConditions = [], timestamp 
       )}
 
       {/* Display road conditions if any */}
-      {roadConditions?.length > 0 && (
+      {filteredConditions.length > 0 && (
         <div>
-          <p className="text-amber-400 font-semibold mb-1 text-center text-sm">Current Conditions:</p>
+          <p className="text-amber-400 font-semibold mb-1 text-center text-sm">
+            {selectedHighway 
+              ? `Hwy ${selectedHighway} Conditions:` 
+              : 'Current Conditions:'}
+          </p>
           <div className="space-y-1">
-            {roadConditions.map((condition, index) => (
+            {filteredConditions.map((condition, index) => (
               <div key={`condition-${index}`} className="bg-amber-500/10 p-2 rounded-lg border border-amber-500/30">
                 <p className="font-medium text-sm">Highway {condition.highway}</p>
                 <p className="text-xs break-words" style={textWrapStyle}>

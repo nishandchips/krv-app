@@ -9,6 +9,7 @@ const DynamicLineChart = ({
   yMax,
   yMin = 0,
   isLakeStorage,
+  isLakeElevation,
   height = 300,
   width = 350,
   displayMode = 'volume',
@@ -26,7 +27,7 @@ const DynamicLineChart = ({
 
   // Helper function to transform data for elevation display if needed
   const getDisplayData = () => {
-    if (!isLakeStorage || displayMode === 'volume') {
+    if (!isLakeStorage || displayMode === 'volume' || isLakeElevation) {
       return data;
     }
 
@@ -50,43 +51,50 @@ const DynamicLineChart = ({
     });
   };
 
-  // Custom tooltip formatter based on data type and display mode
+  // Custom tooltip formatter based on data type
   const formatTooltipValue = (value, name) => {
     // Use custom formatter if provided
     if (formatTooltip) {
-      return [formatTooltip(value), isLakeStorage ? (displayMode === 'volume' ? 'Storage' : 'Elevation') : 'Flow'];
+      return [formatTooltip(value), 
+        isLakeElevation ? 'Elevation' : 
+        (isLakeStorage ? 'Storage' : 'Flow')];
     }
 
     // Default formatters
-    if (isLakeStorage) {
-      if (displayMode === 'volume') {
-        return [`${value.toLocaleString()} acre-ft`, 'Storage'];
-      } else {
-        return [`${value.toLocaleString()} ft`, 'Elevation'];
-      }
+    if (isLakeElevation) {
+      return [`${value.toFixed(2)} ft`, 'Elevation'];
+    } else if (isLakeStorage) {
+      return [`${value.toLocaleString()} acre-ft`, 'Storage'];
     } else {
       return [`${value.toLocaleString()} cfs`, 'Flow'];
     }
   };
 
-  // Determine Y-axis formatter based on data type and display mode
+  // Determine Y-axis formatter based on data type
   const formatYAxis = (val) => {
-    if (isLakeStorage) {
-      if (displayMode === 'volume') {
-        return `${(val/1000).toFixed(0)}k`;
-      } else {
-        return val;
-      }
+    if (isLakeElevation) {
+      return val.toFixed(0);
+    } else if (isLakeStorage) {
+      return `${(val/1000).toFixed(0)}k`;
     }
     return val;
   };
 
-  // Determine domain based on data type and display mode
+  // Determine domain based on data type
   const getDomain = () => {
     if (yMax) return [yMin, yMax];
 
-    if (isLakeStorage && displayMode === 'elevation') {
-      return [2500, 2605]; // approximate range for Lake Isabella elevation
+    if (isLakeElevation) {
+      // Find min and max elevation from data to set appropriate Y-axis range
+      if (data.length > 0) {
+        const values = data.map(item => item[dataKey]).filter(val => val !== undefined && val !== null);
+        if (values.length > 0) {
+          const min = Math.floor(Math.min(...values) - 1); // Subtract 1 foot for margin
+          const max = Math.ceil(Math.max(...values) + 1); // Add 1 foot for margin
+          return [min, max];
+        }
+      }
+      return [2560, 2570]; // Default range if no data
     }
     
     return [yMin, 'auto'];

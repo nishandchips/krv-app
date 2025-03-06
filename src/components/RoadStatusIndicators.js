@@ -3,7 +3,7 @@ import React from 'react';
 /**
  * Component to display road status indicators with guaranteed alignment
  */
-export default function RoadStatusIndicators({ data }) {
+export default function RoadStatusIndicators({ data, onSelectConditions, selectedHighway }) {
   if (!data) return null;
   
   // Check if a highway has conditions
@@ -14,6 +14,13 @@ export default function RoadStatusIndicators({ data }) {
   // Check if a highway has closures
   const hasClosures = (highway) => {
     return data.roadClosures && data.roadClosures.some(closure => closure.highway === highway);
+  };
+  
+  // Handle click on "Conditions Apply" text
+  const handleConditionsClick = (highway) => {
+    if (onSelectConditions) {
+      onSelectConditions(highway === selectedHighway ? null : highway);
+    }
   };
   
   return (
@@ -27,9 +34,14 @@ export default function RoadStatusIndicators({ data }) {
           </div>
           <div className="flex items-center justify-center">
             {hasConditions('178') && (
-              <div className="bg-amber-500/10 px-2 py-1 rounded text-xs border border-amber-500/30 text-center w-full">
+              <button 
+                onClick={() => handleConditionsClick('178')}
+                className={`bg-amber-500/10 px-2 py-1 rounded text-xs border 
+                  ${selectedHighway === '178' ? 'border-amber-500 font-medium' : 'border-amber-500/30'} 
+                  text-center w-full hover:bg-amber-500/20 cursor-pointer text-amber-400`}
+              >
                 Conditions Apply
-              </div>
+              </button>
             )}
           </div>
         </div>
@@ -42,9 +54,14 @@ export default function RoadStatusIndicators({ data }) {
           </div>
           <div className="flex items-center justify-center">
             {hasConditions('155') && (
-              <div className="bg-amber-500/10 px-2 py-1 rounded text-xs border border-amber-500/30 text-center w-full">
+              <button 
+                onClick={() => handleConditionsClick('155')}
+                className={`bg-amber-500/10 px-2 py-1 rounded text-xs border 
+                  ${selectedHighway === '155' ? 'border-amber-500 font-medium' : 'border-amber-500/30'} 
+                  text-center w-full hover:bg-amber-500/20 cursor-pointer text-amber-400`}
+              >
                 Conditions Apply
-              </div>
+              </button>
             )}
           </div>
         </div>
