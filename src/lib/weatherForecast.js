@@ -1,8 +1,15 @@
-export async function fetchWeatherForecast() {
+export async function fetchWeatherForecast(location = null) {
   try {
     console.log('Client: Fetching weather forecast from internal API route');
-    // Call our internal API route instead of external API directly
-    const response = await fetch('/api/weather-forecast', { 
+    
+    // Construct API URL with location parameters if provided
+    let url = '/api/weather-forecast';
+    if (location) {
+      url += `?lat=${location.lat}&lon=${location.lon}`;
+    }
+    
+    // Call our internal API route
+    const response = await fetch(url, { 
       cache: 'no-store',
       headers: {
         'Cache-Control': 'no-cache'

@@ -1,5 +1,10 @@
-export async function GET() {
+export async function GET(request) {
   try {
+    // Get location from query parameters
+    const { searchParams } = new URL(request.url);
+    const lat = searchParams.get('lat') || '35.6688'; // Default to Lake Isabella
+    const lon = searchParams.get('lon') || '-118.2912';
+    
     // Try server-side API key first with multiple possible environment variable names
     let apiKey = process.env.OPENWEATHER_API_KEY;
     
@@ -33,7 +38,7 @@ export async function GET() {
       throw new Error('OpenWeather API key is not configured');
     }
     
-    const url = `https://api.openweathermap.org/data/2.5/forecast?lat=35.6688&lon=-118.2912&units=imperial&appid=${apiKey}`;
+    const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=imperial&appid=${apiKey}`;
     console.log('Weather Forecast API: Fetching from URL:', url.replace(apiKey, 'API_KEY_HIDDEN'), usingPublicKey ? '(using public key)' : '(using server key)');
     
     const response = await fetch(

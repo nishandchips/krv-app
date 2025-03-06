@@ -14,6 +14,8 @@ import CardNavigation from '@/components/CardNavigation';
 import RiverFlowCard from '@/components/RiverFlowCard';
 import LakeStorageCard from '@/components/LakeStorageCard';
 import RoadClosuresCard from '@/components/cards/RoadClosuresCard';
+import WeatherCard from '@/components/cards/WeatherCard';
+import { locations, getDefaultLocation } from '@/lib/locations';
 
 export default function Home() {
   const [data, setData] = useState({
@@ -25,20 +27,19 @@ export default function Home() {
     weatherForecast: []
   });
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState('tiled');
-  const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [activeCards, setActiveCards] = useState({
-    roadClosures: true,
-    lakeStorage: true,
+    weather: true,
+    lakeIsabella: true,
     riverFlow: true,
-    weather: true
+    roadClosures: true
   });
+  const [selectedLocation, setSelectedLocation] = useState(getDefaultLocation());
   const [isMobile, setIsMobile] = useState(false);
-  const [cardContentState, setCardContentState] = useState({
-    riverFlow: { index: 0, total: 2 }, // North Fork and South Fork
-    weather: { index: 0, total: 2 },   // Current and Forecast
-  });
   const [lastRefresh, setLastRefresh] = useState(new Date());
+  const [cardContentState, setCardContentState] = useState({
+    weather: { index: 0, total: 2 },
+    riverFlow: { index: 0, total: 3 }
+  });
 
   const currentLakeStorage = data.lakeData.length > 0 
     ? data.lakeData[data.lakeData.length - 1].level 
@@ -61,8 +62,8 @@ export default function Home() {
           fetchRoadClosures(),
           fetchLakeLevels(),
           fetchRiverFlow(),
-          fetchWeather(),
-          fetchWeatherForecast()
+          fetchWeather(selectedLocation),
+          fetchWeatherForecast(selectedLocation)
         ]);
 
         setData({
@@ -110,6 +111,32 @@ export default function Home() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Refetch weather data when location changes
+  useEffect(() => {
+    if (!loading) {
+      const fetchWeatherForLocation = async () => {
+        try {
+          const [weatherData, forecastData] = await Promise.all([
+            fetchWeather(selectedLocation),
+            fetchWeatherForecast(selectedLocation)
+          ]);
+          
+          setData(prev => ({
+            ...prev,
+            weather: weatherData,
+            weatherForecast: forecastData
+          }));
+          
+          setLastRefresh(new Date());
+        } catch (error) {
+          console.error('Error fetching weather for location:', error);
+        }
+      };
+      
+      fetchWeatherForLocation();
+    }
+  }, [selectedLocation, loading]);
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-black/50">
@@ -121,17 +148,10 @@ export default function Home() {
 
   // Make cards auto-scale to fit the viewport
   const calculateCardSize = () => {
-    if (viewMode === 'tiled') {
-      return {
-        width: isMobile ? 'w-full' : 'w-full',
-        height: isMobile ? 'h-[320px]' : 'md:h-[calc(50vh-3rem)]'
-      };
-    } else {
-      return {
-        width: isMobile ? 'w-full' : 'md:w-[calc(100%-2rem)]',
-        height: isMobile ? 'h-[500px]' : 'md:h-[calc(80vh-5rem)]'
-      };
-    }
+    return {
+      width: 'w-full',
+      height: isMobile ? 'h-[320px]' : 'md:h-[calc(50vh-3rem)]'
+    };
   };
 
   const cardSize = calculateCardSize();
@@ -146,24 +166,6 @@ export default function Home() {
       }
       return { ...prev, [cardName]: currentState };
     });
-  };
-
-  const toggleViewMode = (mode) => {
-    setViewMode(mode);
-  };
-
-  const navigateCards = (direction) => {
-    const activeCardKeys = Object.entries(activeCards)
-      .filter(([_, isActive]) => isActive)
-      .map(([key]) => key);
-    
-    let newIndex;
-    if (direction === 'next') {
-      newIndex = (currentCardIndex + 1) % activeCardKeys.length;
-    } else {
-      newIndex = (currentCardIndex - 1 + activeCardKeys.length) % activeCardKeys.length;
-    }
-    setCurrentCardIndex(newIndex);
   };
 
   // Add a manual refresh function
@@ -182,353 +184,67 @@ export default function Home() {
         <Logo />
       </div>
 
-      {/* View mode toggles with improved styling and proper centering */}
-      <div className="flex justify-center items-center py-2 bg-black/30 relative z-10">
-        <div className="flex justify-center items-center w-full">
-          <div className="inline-flex justify-center items-center">
-            <button
-              onClick={() => toggleViewMode('tiled')}
-              className={`p-2 rounded-lg transition-all ${
-                viewMode === 'tiled' 
-                  ? 'bg-blue-500 text-white' 
-                  : 'bg-gray-200 hover:bg-gray-300'
-              }`}
-              title="Tiled View"
-              aria-label="Switch to tiled view"
+      {/* Main content */}
+      <div className="flex-1 overflow-y-auto pt-4 relative z-10">
+        <div className="absolute inset-0 bg-black/30 backdrop-blur-sm -z-10"></div>
+
+        <div className={`container mx-auto grid grid-cols-1 ${isMobile ? '' : 'md:grid-cols-2'} gap-6 px-4`}>
+          {/* Road Closures Card */}
+          {activeCards.roadClosures && (
+            <div className={`${cardSize.width} ${cardSize.height} mx-auto`}>
+              <RoadClosuresCard data={{ roadClosures: data.roadClosures, roadConditions: data.roadConditions }} />
+            </div>
+          )}
+
+          {/* Lake Storage Card */}
+          {activeCards.lakeIsabella && (
+            <div className={`${cardSize.width} ${cardSize.height} mx-auto`}>
+              <LakeStorageCard data={recentLakeData} />
+            </div>
+          )}
+
+          {/* River Flow Card */}
+          {activeCards.riverFlow && (
+            <div className={`${cardSize.width} ${cardSize.height} mx-auto relative`}>
+              <RiverFlowCard 
+                data={data.riverData}
+                cardContentState={cardContentState}
+                navigateCardContent={navigateCardContent}
+                isMobile={isMobile}
+              />
+              <CardNavigation 
+                onPrev={() => navigateCardContent('riverFlow', 'prev')}
+                onNext={() => navigateCardContent('riverFlow', 'next')}
+              />
+            </div>
+          )}
+
+          {/* Weather Card */}
+          {activeCards.weather && (
+            <div className={`${cardSize.width} ${cardSize.height} mx-auto relative`}>
+              <WeatherCard 
+                data={data.weather}
+                weatherForecast={data.weatherForecast}
+                cardContentState={cardContentState}
+                navigateCardContent={navigateCardContent}
+                isMobile={isMobile}
+                onLocationChange={setSelectedLocation}
+              />
+            </div>
+          )}
+
+          {/* Add a small refresh indicator */}
+          <div className="fixed bottom-2 right-2 text-xs text-gray-400 bg-black/50 p-1 rounded">
+            Last updated: {lastRefresh.toLocaleTimeString()}
+            <button 
+              onClick={handleManualRefresh} 
+              className="ml-2 bg-blue-500 text-white px-2 py-0.5 rounded text-xs"
+              aria-label="Refresh data"
             >
-              <div className="grid grid-cols-2 gap-1 w-6 h-6">
-                <div className="bg-current rounded-sm"></div>
-                <div className="bg-current rounded-sm"></div>
-                <div className="bg-current rounded-sm"></div>
-                <div className="bg-current rounded-sm"></div>
-              </div>
-            </button>
-            
-            <button
-              onClick={() => toggleViewMode('oneCard')}
-              className={`p-2 rounded-lg transition-all ml-4 ${
-                viewMode === 'oneCard' 
-                  ? 'bg-blue-500 text-white' 
-                  : 'bg-gray-200 hover:bg-gray-300'
-              }`}
-              title="Single Card View"
-              aria-label="Switch to single card view"
-            >
-              <div className="w-6 h-6 bg-current rounded-sm"></div>
+              Refresh
             </button>
           </div>
         </div>
-      </div>
-
-      {/* Main content */}
-      <div className={`flex-1 overflow-y-auto pt-4 relative z-10 ${viewMode === 'oneCard' ? 'pb-16' : 'pb-4'}`}>
-        <div className="absolute inset-0 bg-black/30 backdrop-blur-sm -z-10"></div>
-
-        {viewMode === 'tiled' ? (
-          <div className={`container mx-auto grid grid-cols-1 ${isMobile ? '' : 'md:grid-cols-2'} gap-6 px-4`}>
-            {/* Road Closures Card */}
-            {activeCards.roadClosures && (
-              <div className={`${cardSize.width} ${cardSize.height} mx-auto`}>
-                <RoadClosuresCard data={{ roadClosures: data.roadClosures, roadConditions: data.roadConditions }} />
-              </div>
-            )}
-
-            {/* Lake Storage Card */}
-            {activeCards.lakeStorage && (
-              <div className={`${cardSize.width} ${cardSize.height} mx-auto`}>
-                <LakeStorageCard data={recentLakeData} />
-              </div>
-            )}
-
-            {/* River Flow Card */}
-            {activeCards.riverFlow && (
-              <div className={`${cardSize.width} ${cardSize.height} mx-auto relative`}>
-                <RiverFlowCard 
-                  data={data.riverData}
-                  cardContentState={cardContentState}
-                  navigateCardContent={navigateCardContent}
-                  isMobile={isMobile}
-                />
-                <CardNavigation 
-                  onPrev={() => navigateCardContent('riverFlow', 'prev')}
-                  onNext={() => navigateCardContent('riverFlow', 'next')}
-                />
-              </div>
-            )}
-
-            {/* Weather Card */}
-            {activeCards.weather && (
-              <div className={`${cardSize.width} ${cardSize.height} mx-auto relative`}>
-                <Card className="h-full overflow-hidden">
-                  <CardHeader className="pb-1">
-                    <CardTitle className="text-lg md:text-xl font-bold">Weather</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-1 md:p-3 flex-grow overflow-y-auto">
-                    {cardContentState.weather.index === 0 ? (
-                      <div className="flex flex-col h-full">
-                        <div className="text-center mb-1">
-                          <p className="text-blue-400 mb-0.5 text-sm md:text-base">Current Conditions</p>
-                          <div className="flex items-center justify-center mb-0.5">
-                            {data.weather.icon && (
-                              <img 
-                                src={`https://openweathermap.org/img/wn/${data.weather.icon}@2x.png`} 
-                                alt={data.weather.description} 
-                                className="w-12 h-12 md:w-16 md:h-16"
-                              />
-                            )}
-                            <p className="text-2xl md:text-4xl font-bold">
-                              {data.weather.temp ? `${Math.round(data.weather.temp)}°F` : 'N/A'}
-                            </p>
-                          </div>
-                          <p className="text-sm md:text-lg capitalize mb-0.5">{data.weather.description || ''}</p>
-                          {data.weather.shortForecast && (
-                            <p className="text-gray-300 mb-1 text-xs">{data.weather.shortForecast}</p>
-                          )}
-                        </div>
-                        <div className="grid grid-cols-2 gap-1 md:gap-2">
-                          <div className="text-center p-1 md:p-2 bg-blue-500/10 rounded-lg">
-                            <p className="text-xs text-blue-400 mb-0.5">Humidity</p>
-                            <p className="text-sm md:text-lg">{data.weather.humidity ? `${data.weather.humidity}%` : 'N/A'}</p>
-                          </div>
-                          <div className="text-center p-1 md:p-2 bg-blue-500/10 rounded-lg">
-                            <p className="text-xs text-blue-400 mb-0.5">Wind</p>
-                            <p className="text-sm md:text-lg">{data.weather.windSpeed ? `${Math.round(data.weather.windSpeed)} mph` : 'N/A'}</p>
-                          </div>
-                          <div className="text-center p-1 md:p-2 bg-blue-500/10 rounded-lg">
-                            <p className="text-xs text-blue-400 mb-0.5">High</p>
-                            <p className="text-sm md:text-lg">{data.weather.tempMax ? `${Math.round(data.weather.tempMax)}°F` : 'N/A'}</p>
-                          </div>
-                          <div className="text-center p-1 md:p-2 bg-blue-500/10 rounded-lg">
-                            <p className="text-xs text-blue-400 mb-0.5">Low</p>
-                            <p className="text-sm md:text-lg">{data.weather.tempMin ? `${Math.round(data.weather.tempMin)}°F` : 'N/A'}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col h-full">
-                        <p className="text-center text-blue-400 mb-1 text-xs md:text-sm">5-Day Forecast</p>
-                        {data.weatherForecast && data.weatherForecast.length > 0 ? (
-                          <div className="space-y-1 md:space-y-2 overflow-y-auto h-[calc(100%-1.5rem)]">
-                            {data.weatherForecast.slice(0, 5).map((day, idx) => (
-                              <div key={idx} className="p-1 md:p-1.5 bg-blue-500/10 rounded-lg flex items-center">
-                                <div className="w-6 h-6 md:w-8 md:h-8 mr-1 md:mr-1.5">
-                                  {day.icon && (
-                                    <img 
-                                      src={`https://openweathermap.org/img/wn/${day.icon}@2x.png`} 
-                                      alt={day.description} 
-                                      className="w-full h-full"
-                                    />
-                                  )}
-                                </div>
-                                <div className="flex-grow">
-                                  <p className="font-medium text-xs">{new Date(day.date).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' })}</p>
-                                  <p className="text-xs capitalize truncate">{day.description}</p>
-                                </div>
-                                <div className="text-right">
-                                  <p className="font-medium text-xs">{day.tempMax ? `${Math.round(day.tempMax)}°` : '-'}</p>
-                                  <p className="text-xs text-gray-400">{day.tempMin ? `${Math.round(day.tempMin)}°` : '-'}</p>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="flex items-center justify-center h-full text-gray-400">
-                            <p className="text-xs md:text-sm">No forecast available</p>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-                <CardNavigation 
-                  onPrev={() => navigateCardContent('weather', 'prev')}
-                  onNext={() => navigateCardContent('weather', 'next')}
-                />
-              </div>
-            )}
-
-            {/* Add a small refresh indicator */}
-            <div className="fixed bottom-2 right-2 text-xs text-gray-400 bg-black/50 p-1 rounded">
-              Last updated: {lastRefresh.toLocaleTimeString()}
-              <button 
-                onClick={handleManualRefresh} 
-                className="ml-2 bg-blue-500 text-white px-2 py-0.5 rounded text-xs"
-                aria-label="Refresh data"
-              >
-                Refresh
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="container mx-auto py-2 px-4 flex flex-col items-center">
-            <div className="flex justify-center gap-4 mb-4">
-              <button 
-                onClick={() => navigateCards('prev')}
-                className="p-2 rounded-full bg-blue-500 text-white"
-                aria-label="Previous card"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <button 
-                onClick={() => navigateCards('next')}
-                className="p-2 rounded-full bg-blue-500 text-white"
-                aria-label="Next card"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
-            
-            {(() => {
-              const activeCardKeys = Object.entries(activeCards)
-                .filter(([_, isActive]) => isActive)
-                .map(([key]) => key);
-              
-              if (activeCardKeys.length === 0) {
-                return (
-                  <Card className={`${cardSize.width} ${cardSize.height}`}>
-                    <CardContent className="flex items-center justify-center h-full">
-                      <p className="text-gray-400">No cards are active</p>
-                    </CardContent>
-                  </Card>
-                );
-              }
-              
-              const currentCard = activeCardKeys[currentCardIndex];
-              
-              switch (currentCard) {
-                case 'roadClosures':
-                  return (
-                    <RoadClosuresCard data={{ roadClosures: data.roadClosures, roadConditions: data.roadConditions }} />
-                  );
-                  
-                case 'lakeStorage':
-                  return (
-                    <div className={`${cardSize.width} ${cardSize.height}`}>
-                      <LakeStorageCard data={recentLakeData} />
-                    </div>
-                  );
-                  
-                case 'riverFlow':
-                  return (
-                    <div className={`${cardSize.width} ${cardSize.height}`}>
-                      <RiverFlowCard 
-                        data={data.riverData}
-                        cardContentState={cardContentState}
-                        navigateCardContent={navigateCardContent}
-                        isMobile={isMobile}
-                      />
-                      <div className="flex justify-center mt-4">
-                        <CardNavigation 
-                          onPrev={() => navigateCardContent('riverFlow', 'prev')}
-                          onNext={() => navigateCardContent('riverFlow', 'next')}
-                        />
-                      </div>
-                    </div>
-                  );
-                  
-                case 'weather':
-                  return (
-                    <div className={`${cardSize.width} ${cardSize.height}`}>
-                      <Card className="h-full overflow-hidden">
-                        <CardHeader>
-                          <CardTitle>Weather</CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-3 md:p-4 flex-grow overflow-y-auto">
-                          {cardContentState.weather.index === 0 ? (
-                            <>
-                              <div className="text-center mb-3">
-                                <p className="text-blue-400 mb-1 text-sm md:text-base">Current Conditions</p>
-                                <div className="flex items-center justify-center mb-1">
-                                  {data.weather.icon && (
-                                    <img 
-                                      src={`https://openweathermap.org/img/wn/${data.weather.icon}@2x.png`} 
-                                      alt={data.weather.description} 
-                                      className="w-14 h-14 md:w-16 md:h-16"
-                                    />
-                                  )}
-                                  <p className="text-3xl md:text-4xl font-bold">
-                                    {data.weather.temp ? `${Math.round(data.weather.temp)}°F` : 'N/A'}
-                                  </p>
-                                </div>
-                                <p className="text-lg md:text-xl capitalize mb-1">{data.weather.description || ''}</p>
-                                {data.weather.shortForecast && (
-                                  <p className="text-gray-300 mb-3 text-xs md:text-sm">{data.weather.shortForecast}</p>
-                                )}
-                              </div>
-                              <div className="grid grid-cols-2 gap-2 md:gap-3">
-                                <div className="text-center p-2 md:p-3 bg-blue-500/10 rounded-lg">
-                                  <p className="text-xs md:text-sm text-blue-400 mb-1">Humidity</p>
-                                  <p className="text-base md:text-xl">{data.weather.humidity ? `${data.weather.humidity}%` : 'N/A'}</p>
-                                </div>
-                                <div className="text-center p-2 md:p-3 bg-blue-500/10 rounded-lg">
-                                  <p className="text-xs md:text-sm text-blue-400 mb-1">Wind</p>
-                                  <p className="text-base md:text-xl">{data.weather.windSpeed ? `${Math.round(data.weather.windSpeed)} mph` : 'N/A'}</p>
-                                </div>
-                                <div className="text-center p-2 md:p-3 bg-blue-500/10 rounded-lg">
-                                  <p className="text-xs md:text-sm text-blue-400 mb-1">High</p>
-                                  <p className="text-base md:text-xl">{data.weather.tempMax ? `${Math.round(data.weather.tempMax)}°F` : 'N/A'}</p>
-                                </div>
-                                <div className="text-center p-2 md:p-3 bg-blue-500/10 rounded-lg">
-                                  <p className="text-xs md:text-sm text-blue-400 mb-1">Low</p>
-                                  <p className="text-base md:text-xl">{data.weather.tempMin ? `${Math.round(data.weather.tempMin)}°F` : 'N/A'}</p>
-                                </div>
-                              </div>
-                            </>
-                          ) : (
-                            <>
-                              <p className="text-center text-blue-400 mb-2 text-sm">5-Day Forecast</p>
-                              {data.weatherForecast && data.weatherForecast.length > 0 ? (
-                                <div className="space-y-2 md:space-y-3 overflow-y-auto h-[calc(100%-2rem)]">
-                                  {data.weatherForecast.slice(0, 5).map((day, idx) => (
-                                    <div key={idx} className="p-2 bg-blue-500/10 rounded-lg flex items-center">
-                                      <div className="w-8 h-8 md:w-10 md:h-10 mr-2">
-                                        {day.icon && (
-                                          <img 
-                                            src={`https://openweathermap.org/img/wn/${day.icon}@2x.png`} 
-                                            alt={day.description} 
-                                            className="w-full h-full"
-                                          />
-                                        )}
-                                      </div>
-                                      <div className="flex-grow">
-                                        <p className="font-medium text-sm md:text-base">{new Date(day.date).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' })}</p>
-                                        <p className="text-xs md:text-sm capitalize truncate">{day.description}</p>
-                                      </div>
-                                      <div className="text-right">
-                                        <p className="font-medium text-sm md:text-base">{day.tempMax ? `${Math.round(day.tempMax)}°` : '-'}</p>
-                                        <p className="text-xs md:text-sm text-gray-400">{day.tempMin ? `${Math.round(day.tempMin)}°` : '-'}</p>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              ) : (
-                                <div className="flex items-center justify-center h-full text-gray-400">
-                                  <p className="text-sm md:text-base">No forecast available</p>
-                                </div>
-                              )}
-                            </>
-                          )}
-                        </CardContent>
-                      </Card>
-                      <div className="flex justify-center mt-4">
-                        <CardNavigation 
-                          onPrev={() => navigateCardContent('weather', 'prev')}
-                          onNext={() => navigateCardContent('weather', 'next')}
-                        />
-                      </div>
-                    </div>
-                  );
-                  
-                default:
-                  return null;
-              }
-            })()}
-          </div>
-        )}
       </div>
     </div>
   );

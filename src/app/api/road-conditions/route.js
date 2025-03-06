@@ -1,11 +1,24 @@
 export async function GET() {
   try {
-    console.log('Server: Fetching road conditions data from Caltrans API');
+    console.log('Server: Fetching road conditions data from Caltrans API - ' + new Date().toISOString());
     
-    // Fetch data for both highways using Caltrans API
+    // Fetch data for both highways using Caltrans API with cache-busting query parameter
+    const timestamp = Date.now();
     const [hwy178Response, hwy155Response] = await Promise.all([
-      fetch('https://roads.dot.ca.gov/roadinfo/sr178'),
-      fetch('https://roads.dot.ca.gov/roadinfo/sr155')
+      fetch(`https://roads.dot.ca.gov/roadinfo/sr178?_nocache=${timestamp}`, {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      }),
+      fetch(`https://roads.dot.ca.gov/roadinfo/sr155?_nocache=${timestamp}`, {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      })
     ]);
     
     // Check if the responses are ok
@@ -24,6 +37,12 @@ export async function GET() {
     // Process the data
     const hwy178Data = await hwy178Response.text();
     const hwy155Data = await hwy155Response.text();
+    
+    // Log the raw data for debugging
+    console.log('-----RAW DATA FROM CALTRANS-----');
+    console.log('HWY 178:', hwy178Data.substring(0, 500)); // Show first 500 chars
+    console.log('HWY 155:', hwy155Data.substring(0, 500)); // Show first 500 chars
+    console.log('--------------------------------');
     
     // Process the data
     const closures = [];
@@ -63,14 +82,29 @@ export async function GET() {
       });
     }
     
+    // Log the extracted conditions
+    console.log('-----EXTRACTED CONDITIONS-----');
+    console.log('Road Conditions:', JSON.stringify(roadConditions, null, 2));
+    console.log('-----------------------------');
+    
     console.log('Server: Road data processed successfully', { 
       closuresCount: closures.length, 
       conditionsCount: roadConditions.length 
     });
     
-    return Response.json({
+    // Return the response with cache control headers
+    return new Response(JSON.stringify({
       roadClosures: closures,
-      roadConditions: roadConditions
+      roadConditions: roadConditions,
+      timestamp: new Date().toISOString()
+    }), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
     });
   } catch (error) {
     console.error('Server: Error processing road data:', error);
@@ -99,40 +133,48 @@ function extractDescription(data, highwayPrefix) {
 // Helper function to extract road conditions from the text
 function extractRoadConditions(data, highwayPrefix) {
   try {
+    if (!data.includes('CHAINS') && !data.includes('SNOW') && !data.includes('TIRES')) {
+      return null;
+    }
+
     const parts = data.split(highwayPrefix);
-    if (parts.length > 1) {
-      const description = parts[1].trim();
-      
-      // Look for various road conditions
-      const conditionKeywords = [
-        'CHAINS', 'SNOW TIRES', 'ICY', 'SNOW', 'FOG', 'WIND', 
-        'CONSTRUCTION', 'DEBRIS', 'ROCK', 'MUDSLIDE', 'FLOODED'
-      ];
-      
-      // Extract the relevant part about conditions
-      const lines = description.split('\n');
-      for (const line of lines) {
-        if (conditionKeywords.some(keyword => line.includes(keyword))) {
-          // Return the full line without truncation
-          return line.trim();
-        }
-      }
-      
-      // If we can't find a specific line but there are conditions in the description
-      if (conditionKeywords.some(keyword => description.includes(keyword))) {
-        // Find the sentence containing the condition and return the full sentence
-        const sentences = description.split('.');
-        for (const sentence of sentences) {
-          if (conditionKeywords.some(keyword => sentence.includes(keyword))) {
-            return sentence.trim() + '.';
+    if (parts.length <= 1) {
+      return null;
+    }
+
+    const highwaySection = parts[1].trim();
+    const areaMarker = highwaySection.includes('[IN THE') ? '[IN THE' : '[IN ';
+    const areaParts = highwaySection.split(areaMarker);
+
+    if (areaParts.length <= 1) {
+      return null;
+    }
+
+    for (let i = 1; i < areaParts.length; i++) {
+      const areaSection = areaParts[i];
+      const areaEnd = areaSection.indexOf(']');
+
+      if (areaEnd === -1) continue;
+
+      const areaText = areaSection.substring(areaEnd + 1).trim();
+      const paragraphs = areaText.split('\n').filter(p => p.trim());
+
+      for (let j = 0; j < paragraphs.length; j++) {
+        if (paragraphs[j].includes('CHAINS') || paragraphs[j].includes('SNOW TIRES')) {
+          let condition = paragraphs[j].trim();
+          let k = j + 1;
+          while (k < paragraphs.length && !paragraphs[k].includes('[') && paragraphs[k].trim() !== '') {
+            condition += ' ' + paragraphs[k].trim();
+            k++;
           }
+          return condition;
         }
-        return description; // Return full description if we can't segment properly
       }
     }
+
     return null;
   } catch (error) {
-    console.error('Server: Error extracting road conditions:', error);
+    console.error('Error extracting road conditions:', error);
     return null;
   }
 } 
