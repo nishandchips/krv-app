@@ -150,7 +150,7 @@ export default function Home() {
   const calculateCardSize = () => {
     return {
       width: 'w-full',
-      height: isMobile ? 'auto min-h-[280px]' : 'md:h-[calc(50vh-3rem)]'
+      height: isMobile ? 'auto min-h-[280px] mb-4' : 'md:h-[calc(50vh-3rem)]'
     };
   };
 
@@ -159,24 +159,49 @@ export default function Home() {
   const navigateCardContent = (cardName, direction) => {
     setCardContentState(prev => {
       const currentState = { ...prev[cardName] };
-      if (direction === 'next') {
-        currentState.index = (currentState.index + 1) % currentState.total;
-      } else {
+      if (direction === 'prev') {
         currentState.index = (currentState.index - 1 + currentState.total) % currentState.total;
+      } else if (direction === 'next') {
+        currentState.index = (currentState.index + 1) % currentState.total;
+      } else if (typeof direction === 'number') {
+        currentState.index = direction;
       }
       return { ...prev, [cardName]: currentState };
     });
   };
 
   // Add a manual refresh function
-  const handleManualRefresh = () => {
+  const handleManualRefresh = async () => {
     console.log('Manual refresh triggered');
-    fetchData();
-    setLastRefresh(new Date());
+    setLoading(true);
+    try {
+      const [roadData, lakeData, riverData, weather, weatherForecast] = await Promise.all([
+        fetchRoadClosures(),
+        fetchLakeLevels(),
+        fetchRiverFlow(),
+        fetchWeather(selectedLocation),
+        fetchWeatherForecast(selectedLocation)
+      ]);
+
+      setData({
+        roadClosures: roadData.roadClosures || [],
+        roadConditions: roadData.roadConditions || [],
+        lakeData: lakeData.length > 0 ? lakeData : fallbackLakeData,
+        riverData,
+        weather,
+        weatherForecast
+      });
+
+      setLastRefresh(new Date());
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="flex min-h-screen bg-[var(--background)] flex-col">
+    <div className="min-h-screen bg-[var(--background)] flex flex-col">
       <DynamicBackground />
       
       {/* Banner with semi-transparent overlay */}
@@ -185,57 +210,59 @@ export default function Home() {
       </div>
 
       {/* Main content */}
-      <div className="flex-1 py-4 md:py-8 px-4 md:px-8 lg:px-12 container mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-          {/* Road Closures Card */}
-          {activeCards.roadClosures && (
-            <div className={`${cardSize.width} ${cardSize.height} mx-auto`}>
-              <RoadClosuresCard data={{ roadClosures: data.roadClosures, roadConditions: data.roadConditions, timestamp: lastRefresh }} />
-            </div>
-          )}
+      <div className="flex-1 py-4 md:py-8 px-4 md:px-8 lg:px-12">
+        <div className="container mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+            {/* Road Closures Card */}
+            {activeCards.roadClosures && (
+              <div className={`${cardSize.width} ${cardSize.height}`}>
+                <RoadClosuresCard data={{ roadClosures: data.roadClosures, roadConditions: data.roadConditions, timestamp: lastRefresh }} />
+              </div>
+            )}
 
-          {/* Lake Storage Card */}
-          {activeCards.lakeIsabella && (
-            <div className={`${cardSize.width} ${cardSize.height} mx-auto`}>
-              <LakeStorageCard data={recentLakeData} />
-            </div>
-          )}
+            {/* Lake Storage Card */}
+            {activeCards.lakeIsabella && (
+              <div className={`${cardSize.width} ${cardSize.height}`}>
+                <LakeStorageCard data={recentLakeData} />
+              </div>
+            )}
 
-          {/* River Flow Card */}
-          {activeCards.riverFlow && (
-            <div className={`${cardSize.width} ${cardSize.height} mx-auto relative`}>
-              <RiverFlowCard 
-                data={data.riverData}
-                cardContentState={cardContentState}
-                navigateCardContent={navigateCardContent}
-                isMobile={isMobile}
-              />
-              <CardNavigation 
-                onPrev={() => navigateCardContent('riverFlow', 'prev')}
-                onNext={() => navigateCardContent('riverFlow', 'next')}
-              />
-            </div>
-          )}
+            {/* River Flow Card */}
+            {activeCards.riverFlow && (
+              <div className={`${cardSize.width} ${cardSize.height} relative`}>
+                <RiverFlowCard
+                  data={data.riverData}
+                  cardContentState={cardContentState}
+                  navigateCardContent={navigateCardContent}
+                  isMobile={isMobile}
+                />
+                <CardNavigation
+                  onPrev={() => navigateCardContent('riverFlow', 'prev')}
+                  onNext={() => navigateCardContent('riverFlow', 'next')}
+                />
+              </div>
+            )}
 
-          {/* Weather Card */}
-          {activeCards.weather && (
-            <div className={`${cardSize.width} ${cardSize.height} mx-auto relative`}>
-              <WeatherCard 
-                data={data.weather}
-                weatherForecast={data.weatherForecast}
-                cardContentState={cardContentState}
-                navigateCardContent={navigateCardContent}
-                isMobile={isMobile}
-                onLocationChange={setSelectedLocation}
-              />
-            </div>
-          )}
+            {/* Weather Card */}
+            {activeCards.weather && (
+              <div className={`${cardSize.width} ${cardSize.height} relative`}>
+                <WeatherCard
+                  data={data.weather}
+                  weatherForecast={data.weatherForecast}
+                  cardContentState={cardContentState}
+                  navigateCardContent={navigateCardContent}
+                  isMobile={isMobile}
+                  onLocationChange={setSelectedLocation}
+                />
+              </div>
+            )}
+          </div>
 
           {/* Add a small refresh indicator */}
-          <div className="fixed bottom-2 right-2 text-xs text-gray-400 bg-black/50 p-1 rounded">
+          <div className="fixed bottom-2 right-2 text-xs text-gray-400 bg-black/50 p-1 rounded z-50">
             Last updated: {lastRefresh.toLocaleTimeString()}
-            <button 
-              onClick={handleManualRefresh} 
+            <button
+              onClick={handleManualRefresh}
               className="ml-2 bg-blue-500 text-white px-2 py-0.5 rounded text-xs"
               aria-label="Refresh data"
             >

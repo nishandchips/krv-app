@@ -87,8 +87,8 @@ const LakeStorageCard = ({ data }) => {
   };
   
   return (
-    <Card className="h-full overflow-hidden">
-      <CardHeader className="pb-2">
+    <Card className="h-full flex flex-col">
+      <CardHeader className="pb-2 shrink-0">
         <div className="flex justify-between items-center">
           <CardTitle className="text-lg md:text-xl font-bold">Lake Isabella Storage</CardTitle>
           <button 

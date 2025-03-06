@@ -9,7 +9,7 @@ export default function WeatherCard({ data, weatherForecast, cardContentState, n
   const hasForecastData = weatherForecast && weatherForecast.length > 0;
   
   return (
-    <Card className="h-full overflow-hidden flex flex-col">
+    <Card className="h-full flex flex-col">
       <CardHeader className="flex flex-row items-center justify-between p-3 pb-1 shrink-0">
         <CardTitle className="text-lg">Weather</CardTitle>
         <div className="relative">
@@ -34,7 +34,7 @@ export default function WeatherCard({ data, weatherForecast, cardContentState, n
         </div>
       </CardHeader>
       
-      <CardContent className="p-3 flex-grow flex flex-col overflow-hidden relative">
+      <CardContent className="p-3 flex-grow flex flex-col relative overflow-y-auto">
         {!hasWeatherData && (
           <div className="flex flex-col items-center justify-center h-full">
             <p className="text-amber-400 mb-2">Connection Error</p>
@@ -45,7 +45,7 @@ export default function WeatherCard({ data, weatherForecast, cardContentState, n
         {hasWeatherData && (
           <>
             {currentView === 0 && (
-              <div className="flex-grow flex flex-col overflow-hidden">
+              <div className="flex-grow flex flex-col">
                 <div className="text-center mb-3">
                   <div className="flex items-center justify-center">
                     {data.icon && (
@@ -82,9 +82,9 @@ export default function WeatherCard({ data, weatherForecast, cardContentState, n
             )}
             
             {currentView === 1 && hasForecastData && (
-              <div className="flex-grow overflow-hidden">
+              <div className="flex-grow overflow-y-auto">
                 <p className="text-center text-blue-400 mb-2 text-sm">5-Day Forecast</p>
-                <div className="space-y-2 overflow-y-auto max-h-[calc(100%-40px)]">
+                <div className="space-y-2">
                   {weatherForecast.slice(0, 5).map((day, idx) => (
                     <div key={idx} className="p-2 bg-gray-800/30 rounded flex items-center">
                       <div className="w-10 h-10 mr-2 flex-shrink-0">

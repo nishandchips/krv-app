@@ -49,18 +49,18 @@ const RiverFlowCard = ({
   };
   
   return (
-    <Card className="h-full overflow-hidden">
-      <CardHeader className="pb-2">
+    <Card className="h-full flex flex-col">
+      <CardHeader className="pb-2 shrink-0">
         <CardTitle className="text-lg md:text-xl font-bold flex justify-between items-center">
           <span>Kern River Flow</span>
           <div className="flex text-xs space-x-1">
-            <button 
+            <button
               onClick={() => setTimeRange('24h')}
               className={`px-2 py-1 rounded ${timeRange === '24h' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
             >
               24h
             </button>
-            <button 
+            <button
               onClick={() => setTimeRange('7d')}
               className={`px-2 py-1 rounded ${timeRange === '7d' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
             >
