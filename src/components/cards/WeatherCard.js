@@ -34,24 +34,24 @@ export default function WeatherCard({ data, weatherForecast, cardContentState, n
         </div>
       </CardHeader>
       
-      <CardContent className="p-3 flex-grow flex flex-col overflow-hidden">
+      <CardContent className="p-3 flex-grow flex flex-col overflow-hidden relative">
         {!hasWeatherData && (
           <div className="flex flex-col items-center justify-center h-full">
             <p className="text-amber-400 mb-2">Connection Error</p>
             <p className="text-sm text-center">Unable to load weather data</p>
           </div>
         )}
-        
+
         {hasWeatherData && (
           <>
             {currentView === 0 && (
-              <div className="flex-grow flex flex-col overflow-hidden mb-4">
+              <div className="flex-grow flex flex-col overflow-hidden">
                 <div className="text-center mb-3">
                   <div className="flex items-center justify-center">
                     {data.icon && (
-                      <img 
-                        src={`https://openweathermap.org/img/wn/${data.icon}@2x.png`} 
-                        alt={data.description || "Weather"} 
+                      <img
+                        src={`https://openweathermap.org/img/wn/${data.icon}@2x.png`}
+                        alt={data.description || "Weather"}
                         className="w-14 h-14"
                       />
                     )}
@@ -59,7 +59,7 @@ export default function WeatherCard({ data, weatherForecast, cardContentState, n
                   </div>
                   <p className="text-base capitalize">{data.description || 'Weather unavailable'}</p>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-2 text-center">
                   <div className="bg-gray-800/30 p-2 rounded">
                     <p className="text-sm text-blue-400">Humidity</p>
@@ -82,16 +82,16 @@ export default function WeatherCard({ data, weatherForecast, cardContentState, n
             )}
             
             {currentView === 1 && hasForecastData && (
-              <div className="flex-grow overflow-hidden mb-4">
+              <div className="flex-grow overflow-hidden">
                 <p className="text-center text-blue-400 mb-2 text-sm">5-Day Forecast</p>
                 <div className="space-y-2 overflow-y-auto max-h-[calc(100%-40px)]">
                   {weatherForecast.slice(0, 5).map((day, idx) => (
                     <div key={idx} className="p-2 bg-gray-800/30 rounded flex items-center">
                       <div className="w-10 h-10 mr-2 flex-shrink-0">
                         {day.icon && (
-                          <img 
-                            src={`https://openweathermap.org/img/wn/${day.icon}@2x.png`} 
-                            alt={day.description} 
+                          <img
+                            src={`https://openweathermap.org/img/wn/${day.icon}@2x.png`}
+                            alt={day.description}
                             className="w-full h-full"
                           />
                         )}
@@ -118,14 +118,10 @@ export default function WeatherCard({ data, weatherForecast, cardContentState, n
             )}
             
             {hasWeatherData && (
-              <div className="mt-auto shrink-0">
-                <CardNavigation 
-                  steps={['Current', 'Forecast']}
-                  currentStep={currentView}
-                  onChange={(index) => navigateCardContent('weather', index)}
-                  compact={isMobile}
-                />
-              </div>
+              <CardNavigation 
+                onPrev={() => navigateCardContent('weather', 'prev')}
+                onNext={() => navigateCardContent('weather', 'next')}
+              />
             )}
           </>
         )}
