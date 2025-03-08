@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!-- Background -->
+  <rect width="100" height="100" rx="15" fill="#1e3a8a" />
+  
+  <!-- Lake (blue wave) -->
+  <path d="M10,65 C20,60 30,70 40,65 C50,60 60,70 70,65 C80,60 90,70 100,65 L100,100 L0,100 L0,65 C0,65 5,67 10,65 Z" fill="#3b82f6" />
+  
+  <!-- Mountains -->
+  <path d="M0,65 L30,25 L45,45 L60,20 L100,65 L0,65 Z" fill="#4b5563" />
+  <path d="M15,65 L40,30 L50,40 L70,25 L85,65 L15,65 Z" fill="#6b7280" />
+  
+  <!-- Snow caps -->
+  <path d="M30,25 L33,29 L27,29 Z" fill="white" />
+  <path d="M60,20 L63,24 L57,24 Z" fill="white" />
+  <path d="M40,30 L43,34 L37,34 Z" fill="white" />
+  <path d="M70,25 L73,29 L67,29 Z" fill="white" />
+</svg> 
