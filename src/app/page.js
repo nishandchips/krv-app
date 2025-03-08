@@ -264,6 +264,23 @@ export default function Home() {
         >
           {loading ? 'Refreshing...' : 'Refresh Data'}
         </button>
+        
+        {/* Disclaimer */}
+        <div className="mt-3 mx-auto max-w-2xl px-4">
+          <details className="text-left">
+            <summary className="cursor-pointer text-blue-300 hover:text-blue-200 transition-colors">
+              Disclaimer
+            </summary>
+            <div className="mt-2 p-3 bg-black/50 rounded text-gray-300 text-xs leading-relaxed">
+              <p>
+                While we strive to ensure that the information provided on KRV.APP is accurate and regularly updated, 
+                we cannot guarantee its completeness or accuracy at all times. The data presented here is intended for 
+                informational purposes only. Users should independently verify the information through additional reliable 
+                sources before making any decisions or taking actions based on the data provided.
+              </p>
+            </div>
+          </details>
+        </div>
       </div>
     </div>
   );
