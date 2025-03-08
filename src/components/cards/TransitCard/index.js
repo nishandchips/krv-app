@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fetchTransitData } from '@/lib/api/transit';
 import { formatTime, getPaymentMethodDescription, getTransfersDescription } from '@/lib/transit/transitData';
+import InfoButton from '@/components/ui/InfoButton';
 
 const TransitCard = () => {
   const [transitData, setTransitData] = useState({});
@@ -155,7 +156,15 @@ const TransitCard = () => {
   return (
     <Card className="h-full flex flex-col">
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg md:text-xl font-bold">Kern Transit Schedules & Fees</CardTitle>
+        <div className="flex items-center">
+          <CardTitle className="text-lg md:text-xl font-bold">Kern Transit Schedules & Fees</CardTitle>
+          <InfoButton 
+            sourceName="Kern Transit" 
+            sourceUrl="https://kerntransit.org/" 
+            className="ml-2 text-sm"
+            position="bottom-left"
+          />
+        </div>
       </CardHeader>
       <CardContent className="p-2 md:p-3 flex-grow overflow-y-auto">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">

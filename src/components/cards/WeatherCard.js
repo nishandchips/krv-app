@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from 'react';
 import { locations } from '@/lib/locations';
+import InfoButton from '@/components/ui/InfoButton';
 
 export default function WeatherCard({ data, weatherForecast, cardContentState, navigateCardContent, onLocationChange }) {
   // Extract weather data from the nested structure if needed
@@ -24,7 +25,15 @@ export default function WeatherCard({ data, weatherForecast, cardContentState, n
   return (
     <Card className="h-full flex flex-col">
       <CardHeader className="flex flex-row items-center justify-between p-3 pb-1 shrink-0">
-        <CardTitle className="text-lg">Weather</CardTitle>
+        <div className="flex items-center">
+          <CardTitle className="text-lg">Weather</CardTitle>
+          <InfoButton 
+            sourceName="OpenWeather API" 
+            sourceUrl="https://openweathermap.org/api" 
+            className="ml-2 text-sm"
+            position="bottom-left"
+          />
+        </div>
         <div className="relative">
           <select
             className="bg-gray-800 text-white border border-gray-700 rounded p-1 text-xs"

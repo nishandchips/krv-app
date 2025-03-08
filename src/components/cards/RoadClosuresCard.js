@@ -4,6 +4,7 @@ import RoadStatusIndicators from "@/components/RoadStatusIndicators";
 import ClosuresList from "@/components/ClosuresList";
 import { forceRefreshRoadConditions } from "@/lib/caltrans";
 import { RefreshCw } from "lucide-react";
+import InfoButton from '@/components/ui/InfoButton';
 
 /**
  * Road closures card with consistent sizing to match LakeStorageCard exactly
@@ -42,7 +43,15 @@ export default function RoadClosuresCard({ data, className, onRefresh }) {
   return (
     <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle>Road Status</CardTitle>
+        <div className="flex items-center">
+          <CardTitle>Road Status</CardTitle>
+          <InfoButton 
+            sourceName="Caltrans Lane Closure System" 
+            sourceUrl="https://lcswebreports.dot.ca.gov/" 
+            className="ml-2 text-sm"
+            position="bottom-left"
+          />
+        </div>
         <div className="flex items-center">
           {lastRefreshTime && (
             <span className="text-xs text-gray-500 mr-2">

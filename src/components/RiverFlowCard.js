@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import DynamicLineChart from '@/components/DynamicLineChart';
 import { getFlowStatusColor, getFlowStatusText } from '@/lib/usgs';
+import InfoButton from '@/components/ui/InfoButton';
 
 const RiverFlowCard = ({ 
   data, 
@@ -51,7 +52,15 @@ const RiverFlowCard = ({
     <Card className="h-full flex flex-col">
       <CardHeader className="pb-2 shrink-0">
         <CardTitle className="text-lg md:text-xl font-bold flex justify-between items-center">
-          <span>Kern River Flow</span>
+          <div className="flex items-center">
+            <span>Kern River Flow</span>
+            <InfoButton 
+              sourceName="USGS Water Data" 
+              sourceUrl="https://waterdata.usgs.gov/nwis/rt" 
+              className="ml-2 text-sm"
+              position="bottom-left"
+            />
+          </div>
           <div className="flex text-xs space-x-1">
             <button
               onClick={() => setTimeRange('24h')}

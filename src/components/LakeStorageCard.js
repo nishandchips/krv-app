@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import DynamicLineChart from '@/components/DynamicLineChart';
+import InfoButton from '@/components/ui/InfoButton';
 
 const LakeStorageCard = ({ data }) => {
   // Add state for the display mode (volume or elevation)
@@ -126,7 +127,15 @@ const LakeStorageCard = ({ data }) => {
     <Card className="h-full flex flex-col">
       <CardHeader className="pb-2 shrink-0">
         <div className="flex justify-between items-center">
-          <CardTitle className="text-lg md:text-xl font-bold">Lake Isabella Storage</CardTitle>
+          <div className="flex items-center">
+            <CardTitle className="text-lg md:text-xl font-bold">Lake Isabella Storage</CardTitle>
+            <InfoButton 
+              sourceName="California Data Exchange Center (CDEC)" 
+              sourceUrl="https://cdec.water.ca.gov/reservoir.html" 
+              className="ml-2 text-sm"
+              position="bottom-left"
+            />
+          </div>
           <button 
             onClick={toggleDisplayMode}
             className="px-2 py-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded text-xs transition-colors"

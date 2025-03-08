@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import DynamicLineChart from '@/components/DynamicLineChart';
+import InfoButton from '@/components/ui/InfoButton';
 
 export default function LakeStorageCard({ data }) {
   const [viewMode, setViewMode] = useState('storage'); // 'elevation' or 'storage'
@@ -25,7 +26,15 @@ export default function LakeStorageCard({ data }) {
   return (
     <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Lake Isabella</CardTitle>
+        <div className="flex items-center">
+          <CardTitle>Lake Isabella</CardTitle>
+          <InfoButton 
+            sourceName="California Data Exchange Center (CDEC)" 
+            sourceUrl="https://cdec.water.ca.gov/reservoir.html" 
+            className="ml-2 text-sm"
+            position="bottom-left"
+          />
+        </div>
         <button 
           onClick={toggleViewMode}
           className="px-2 py-1 text-xs rounded bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 transition-colors"
