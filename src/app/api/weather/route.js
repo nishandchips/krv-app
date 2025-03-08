@@ -53,6 +53,21 @@ export async function GET(request) {
     const data = await response.json();
     console.log('Weather API: Received data:', JSON.stringify(data).substring(0, 100) + '...');
     
+    // Check if the data has the expected structure
+    if (!data.main || !data.weather || !data.weather.length) {
+      console.error('Weather API: Received data is missing required fields:', JSON.stringify(data));
+      throw new Error('Weather API returned incomplete data');
+    }
+    
+    // Log the specific fields we need
+    console.log('Weather API: Key fields:', {
+      temp: data.main.temp,
+      tempMin: data.main.temp_min,
+      tempMax: data.main.temp_max,
+      description: data.weather[0]?.description,
+      icon: data.weather[0]?.icon
+    });
+    
     // Transform to standardized format
     const processedData = {
       temp: data.main?.temp,
@@ -70,35 +85,22 @@ export async function GET(request) {
       timestamp: new Date().toISOString()
     };
     
+    // Validate the processed data
+    if (processedData.temp === undefined) {
+      console.error('Weather API: Processed data is missing temperature:', JSON.stringify(processedData));
+      throw new Error('Weather API processed data is missing temperature');
+    }
+    
     console.log('Weather API: Processed data:', JSON.stringify(processedData).substring(0, 100) + '...');
     
     return Response.json(processedData);
   } catch (error) {
     console.error('Error fetching weather data:', error);
     
-    // Return fallback data with error status
-    const fallbackData = {
-      temp: 75,
-      tempMin: 65,
-      tempMax: 85,
-      humidity: 30,
-      windSpeed: 5,
-      windDirection: 180,
-      pressure: 1015,
-      description: "Sunny",
-      icon: "01d",
-      cityName: "Kernville",
-      countryCode: "US",
-      shortForecast: "High: 85°F, Low: 65°F",
-      timestamp: new Date().toISOString(),
-      error: error.message
-    };
-    
-    console.log('Weather API: Returning fallback data due to error:', error.message);
-    
+    // Return a proper error response
     return Response.json(
-      fallbackData,
-      { status: 200 } // Still return 200 to prevent client errors
+      { error: error.message },
+      { status: 500 }
     );
   }
 } 

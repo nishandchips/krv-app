@@ -23,7 +23,7 @@ export async function fetchWeather(location = null) {
       try {
         const errorData = await response.json();
         console.error('Client: Weather API error details:', errorData);
-        throw new Error(`Weather API error: ${errorData.message || response.statusText}`);
+        throw new Error(`Weather API error: ${errorData.error || response.statusText}`);
       } catch (parseError) {
         throw new Error(`HTTP error! Status: ${response.status} ${response.statusText}`);
       }
@@ -32,16 +32,27 @@ export async function fetchWeather(location = null) {
     const data = await response.json();
     console.log('Client: Weather data received:', JSON.stringify(data).substring(0, 100) + '...');
     
+    // Check if the response contains an error
     if (data.error) {
-      console.warn('Client: Weather API returned error:', data.error);
+      console.error('Client: Weather API returned error:', data.error);
+      throw new Error(data.error);
+    }
+    
+    // Check if the data is nested or direct
+    const weatherData = data.weather ? data.weather : data;
+    
+    // Validate that we have the required data
+    if (weatherData.temp === undefined) {
+      console.error('Client: Weather API returned invalid data (missing temp):', JSON.stringify(data));
+      throw new Error('Invalid weather data received');
     }
     
     // Add location name to the data if provided
     if (location) {
-      data.locationName = location.name;
+      weatherData.locationName = location.name;
     }
     
-    return data;
+    return weatherData;
   } catch (error) {
     console.error('Client: Error fetching weather data:', error);
     // Return null to indicate error - the UI will show an error message

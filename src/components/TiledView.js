@@ -3,11 +3,38 @@ import LakeStorageCard from './cards/LakeStorageCard';
 import RiverFlowCard from './RiverFlowCard';
 import WeatherCard from './cards/WeatherCard';
 import TransitCard from './cards/TransitCard';
+import { useState } from 'react';
 
-export default function TiledView({ data, activeCards, cardSize, onRefreshRoadData }) {
-  // Create a default cardContentState for RiverFlowCard
-  const defaultCardContentState = {
-    riverFlow: { index: 0, total: 2 }
+export default function TiledView({ data, activeCards, cardSize, onRefreshRoadData, onLocationChange }) {
+  // Create a default cardContentState for cards
+  const [cardContentState, setCardContentState] = useState({
+    riverFlow: { index: 0, total: 2 },
+    weather: { index: 0, total: 2 }
+  });
+
+  // Function to handle card content navigation
+  const navigateCardContent = (cardName, direction) => {
+    setCardContentState(prev => {
+      const currentState = { ...prev[cardName] };
+      if (direction === 'prev') {
+        currentState.index = (currentState.index - 1 + currentState.total) % currentState.total;
+      } else if (direction === 'next') {
+        currentState.index = (currentState.index + 1) % currentState.total;
+      } else if (typeof direction === 'number') {
+        currentState.index = direction;
+      }
+      return { ...prev, [cardName]: currentState };
+    });
+  };
+
+  // Function to handle location change for weather
+  const handleLocationChange = (location) => {
+    // Pass the location change up to the parent component if needed
+    // For now, we'll just log it
+    console.log('Location changed to:', location);
+    
+    // In a real implementation, you would call a function passed from the parent
+    // to update the weather data for the new location
   };
 
   // Ensure riverData has the correct structure with fallbacks
@@ -45,17 +72,19 @@ export default function TiledView({ data, activeCards, cardSize, onRefreshRoadDa
         <div className={cardSize}>
           <RiverFlowCard 
             data={riverData}
-            cardContentState={defaultCardContentState}
+            cardContentState={cardContentState}
+            navigateCardContent={navigateCardContent}
           />
         </div>
       )}
       {activeCards.weather && (
         <div className={cardSize}>
           <WeatherCard 
-            data={{ 
-              weather: data.weather || {}, 
-              forecast: data.weatherForecast || [] 
-            }}
+            data={data.weather || {}}
+            weatherForecast={data.weatherForecast || []}
+            cardContentState={cardContentState}
+            navigateCardContent={navigateCardContent}
+            onLocationChange={onLocationChange}
           />
         </div>
       )}

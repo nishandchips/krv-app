@@ -51,7 +51,16 @@ export async function GET(request) {
     }
     
     const data = await response.json();
-    console.log('Weather Forecast API: Received data list length:', data.list?.length || 0);
+    console.log('Weather Forecast API: Received data:', JSON.stringify(data).substring(0, 100) + '...');
+    
+    // Check if the data has the expected structure
+    if (!data.list || !Array.isArray(data.list) || data.list.length === 0) {
+      console.error('Weather Forecast API: Received data is missing required fields:', JSON.stringify(data));
+      throw new Error('Weather Forecast API returned incomplete data');
+    }
+    
+    // Log a sample of the forecast data
+    console.log('Weather Forecast API: Sample forecast item:', JSON.stringify(data.list[0]));
     
     // Process the 5-day forecast - properly calculate daily min/max temps
     const dailyForecasts = [];
@@ -143,63 +152,12 @@ export async function GET(request) {
     
     return Response.json(dailyForecasts);
   } catch (error) {
-    console.error('Error fetching weather forecast:', error);
+    console.error('Error fetching weather forecast data:', error);
     
-    // Return fallback data with error status
-    const today = new Date();
-    const fallbackData = [
-      {
-        date: new Date(today).toISOString().split('T')[0],
-        tempMax: 85,
-        tempMin: 65,
-        description: "Sunny",
-        icon: "01d",
-        humidity: 30,
-        windSpeed: 5
-      },
-      {
-        date: new Date(today.setDate(today.getDate() + 1)).toISOString().split('T')[0],
-        tempMax: 87,
-        tempMin: 67,
-        description: "Clear sky",
-        icon: "01d",
-        humidity: 32,
-        windSpeed: 6
-      },
-      {
-        date: new Date(today.setDate(today.getDate() + 1)).toISOString().split('T')[0],
-        tempMax: 86,
-        tempMin: 66,
-        description: "Few clouds",
-        icon: "02d",
-        humidity: 35,
-        windSpeed: 7
-      },
-      {
-        date: new Date(today.setDate(today.getDate() + 1)).toISOString().split('T')[0],
-        tempMax: 84,
-        tempMin: 64,
-        description: "Scattered clouds",
-        icon: "03d",
-        humidity: 38,
-        windSpeed: 8
-      },
-      {
-        date: new Date(today.setDate(today.getDate() + 1)).toISOString().split('T')[0],
-        tempMax: 82,
-        tempMin: 62,
-        description: "Partly cloudy",
-        icon: "04d",
-        humidity: 40,
-        windSpeed: 9
-      }
-    ];
-    
-    console.log('Weather Forecast API: Returning fallback data due to error:', error.message);
-    
+    // Return a proper error response
     return Response.json(
-      fallbackData,
-      { status: 200 } // Still return 200 to prevent client errors
+      { error: error.message },
+      { status: 500 }
     );
   }
 } 

@@ -3,9 +3,23 @@ import { useState } from 'react';
 import { locations } from '@/lib/locations';
 
 export default function WeatherCard({ data, weatherForecast, cardContentState, navigateCardContent, onLocationChange }) {
+  // Extract weather data from the nested structure if needed
+  const weatherData = data?.weather ? data.weather : data;
+  
   const currentView = cardContentState?.weather?.index || 0;
-  const hasWeatherData = data && (data.temp !== undefined);
+  const hasWeatherData = weatherData && (weatherData.temp !== undefined);
   const hasForecastData = weatherForecast && weatherForecast.length > 0;
+  
+  // Debug logging
+  console.log('WeatherCard: Original data structure:', data ? JSON.stringify(data).substring(0, 100) + '...' : 'null');
+  console.log('WeatherCard: Using data:', weatherData ? 'present' : 'missing', 
+    weatherData ? `temp: ${weatherData.temp}, icon: ${weatherData.icon}, description: ${weatherData.description}` : '');
+  if (weatherData && weatherData.temp === undefined) {
+    console.error('WeatherCard: Data is present but temp is undefined:', JSON.stringify(weatherData));
+  }
+  console.log('WeatherCard: hasWeatherData:', hasWeatherData);
+  console.log('WeatherCard: hasForecastData:', hasForecastData, 
+    weatherForecast ? `count: ${weatherForecast.length}` : '');
   
   return (
     <Card className="h-full flex flex-col">
@@ -20,7 +34,7 @@ export default function WeatherCard({ data, weatherForecast, cardContentState, n
                 onLocationChange(selectedLoc);
               }
             }}
-            value={data?.locationName ? locations.find(loc => loc.name === data.locationName)?.id : 'lake-isabella'}
+            value={weatherData?.locationName ? locations.find(loc => loc.name === weatherData.locationName)?.id : 'lake-isabella'}
             aria-label="Select location"
             disabled={!hasWeatherData}
           >
@@ -38,6 +52,17 @@ export default function WeatherCard({ data, weatherForecast, cardContentState, n
           <div className="flex flex-col items-center justify-center h-full">
             <p className="text-amber-400 mb-2">Connection Error</p>
             <p className="text-sm text-center">Unable to load weather data</p>
+            <p className="text-xs text-gray-400 mt-2">
+              {weatherData ? `Invalid data received (missing temperature)` : 'No data available'}
+            </p>
+            {data && (
+              <div className="mt-4 text-xs text-left bg-gray-800/50 p-2 rounded max-w-full overflow-auto">
+                <p className="font-mono">Data received:</p>
+                <pre className="text-xs text-gray-400 mt-1 max-h-20 overflow-auto">
+                  {JSON.stringify(data, null, 2)}
+                </pre>
+              </div>
+            )}
           </div>
         )}
 
@@ -47,36 +72,36 @@ export default function WeatherCard({ data, weatherForecast, cardContentState, n
               <div className="flex-grow flex flex-col">
                 <div className="text-center mb-3">
                   <div className="flex items-center justify-center">
-                    {data.icon && (
+                    {weatherData.icon && (
                       <img
-                        src={`https://openweathermap.org/img/wn/${data.icon}@2x.png`}
-                        alt={data.description || "Weather"}
+                        src={`https://openweathermap.org/img/wn/${weatherData.icon}@2x.png`}
+                        alt={weatherData.description || "Weather"}
                         className="w-14 h-14"
                       />
                     )}
-                    <p className="text-4xl font-bold">{data.temp ? `${Math.round(data.temp)}°F` : 'N/A'}</p>
+                    <p className="text-4xl font-bold">{weatherData.temp ? `${Math.round(weatherData.temp)}°F` : 'N/A'}</p>
                   </div>
-                  <p className="text-base capitalize">{data.description || 'Weather unavailable'}</p>
+                  <p className="text-base capitalize">{weatherData.description || 'Weather unavailable'}</p>
 
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 text-center">
                   <div className="bg-gray-800/30 p-2 rounded">
                     <p className="text-sm text-blue-400">Humidity</p>
-                    <p className="text-lg">{data.humidity ? `${data.humidity}%` : 'N/A'}</p>
+                    <p className="text-lg">{weatherData.humidity ? `${weatherData.humidity}%` : 'N/A'}</p>
                   </div>
                   <div className="bg-gray-800/30 p-2 rounded">
                     <p className="text-sm text-blue-400">Wind</p>
-                    <p className="text-lg">{data.windSpeed ? `${Math.round(data.windSpeed)} mph` : 'N/A'}</p>
+                    <p className="text-lg">{weatherData.windSpeed ? `${Math.round(weatherData.windSpeed)} mph` : 'N/A'}</p>
                   </div>
                   <div className="bg-gray-800/30 p-2 rounded">
                     <p className="text-sm text-blue-400">High</p>
-                    <p className="text-lg">{data.tempMax ? `${Math.round(data.tempMax)}°F` : 'N/A'}</p>
+                    <p className="text-lg">{weatherData.tempMax ? `${Math.round(weatherData.tempMax)}°F` : 'N/A'}</p>
 
                   </div>
                   <div className="bg-gray-800/30 p-2 rounded">
                     <p className="text-sm text-blue-400">Low</p>
-                    <p className="text-lg">{data.tempMin ? `${Math.round(data.tempMin)}°F` : 'N/A'}</p>
+                    <p className="text-lg">{weatherData.tempMin ? `${Math.round(weatherData.tempMin)}°F` : 'N/A'}</p>
 
                   </div>
                 </div>
@@ -122,7 +147,7 @@ export default function WeatherCard({ data, weatherForecast, cardContentState, n
             {/* Navigation arrows in the middle of the card */}
             <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-2 pointer-events-none">
               <button
-                onClick={() => navigateCardContent('weather', 'prev')}
+                onClick={() => navigateCardContent && navigateCardContent('weather', 'prev')}
                 className="h-10 w-10 rounded-full bg-black/50 text-white flex items-center justify-center pointer-events-auto"
                 aria-label="Previous content"
               >
@@ -131,7 +156,7 @@ export default function WeatherCard({ data, weatherForecast, cardContentState, n
                 </svg>
               </button>
               <button
-                onClick={() => navigateCardContent('weather', 'next')}
+                onClick={() => navigateCardContent && navigateCardContent('weather', 'next')}
                 className="h-10 w-10 rounded-full bg-black/50 text-white flex items-center justify-center pointer-events-auto"
                 aria-label="Next content"
               >

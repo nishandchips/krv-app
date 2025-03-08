@@ -102,18 +102,42 @@ export default function Home() {
     if (!loading) {
       const fetchWeatherForLocation = async () => {
         try {
+          console.log('Fetching weather data for location:', selectedLocation?.name);
           const [weatherData, forecastData] = await Promise.all([
             fetchWeather(selectedLocation),
             fetchWeatherForecast(selectedLocation)
           ]);
           
-          setData(prev => ({
-            ...prev,
-            weather: weatherData,
-            weatherForecast: forecastData
-          }));
+          console.log('Weather data fetched:', 
+            weatherData ? `temp: ${weatherData.temp}, icon: ${weatherData.icon}` : 'null',
+            'Forecast data:', forecastData ? `count: ${forecastData.length}` : 'null');
           
-          setLastRefresh(new Date());
+          // Only update if we got valid data
+          if (weatherData || forecastData) {
+            setData(prev => {
+              // Check if weatherData is already in the correct format or needs to be wrapped
+              const formattedWeatherData = weatherData ? 
+                (weatherData.temp !== undefined ? weatherData : { weather: weatherData }) : 
+                prev.weather;
+              
+              const newData = {
+                ...prev,
+                weather: formattedWeatherData,
+                weatherForecast: forecastData || prev.weatherForecast
+              };
+              
+              console.log('Updated weather data:', 
+                newData.weather ? 
+                  (newData.weather.temp ? 
+                    `direct temp: ${newData.weather.temp}` : 
+                    `nested temp: ${newData.weather.weather?.temp}`) : 
+                  'null');
+              
+              return newData;
+            });
+            
+            setLastRefresh(new Date());
+          }
         } catch (error) {
           console.error('Error fetching weather for location:', error);
         }
@@ -122,6 +146,12 @@ export default function Home() {
       fetchWeatherForLocation();
     }
   }, [selectedLocation, loading]);
+
+  // Function to handle location change from the WeatherCard
+  const handleLocationChange = (location) => {
+    console.log('Location changed to:', location);
+    setSelectedLocation(location);
+  };
 
   if (loading) {
     return (
@@ -219,6 +249,7 @@ export default function Home() {
             activeCards={activeCards} 
             cardSize={cardSize}
             onRefreshRoadData={handleRoadDataRefresh}
+            onLocationChange={handleLocationChange}
           />
         </div>
       </div>
