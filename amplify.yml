@@ -10,6 +10,10 @@ frontend:
     preBuild:
       commands:
         - npm install
+        # Create a .env.production file with environment variables
+        - echo "OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY}" >> .env.production
+        - echo "NEXT_PUBLIC_OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY}" >> .env.production
+        - echo "UNSPLASH_ACCESS_KEY=${UNSPLASH_ACCESS_KEY}" >> .env.production
     build:
       commands:
         - npm run build
@@ -41,4 +45,5 @@ frontend:
   # Environment variables
   environmentVariables:
     OPENWEATHER_API_KEY: ${OPENWEATHER_API_KEY}
+    NEXT_PUBLIC_OPENWEATHER_API_KEY: ${OPENWEATHER_API_KEY}
     UNSPLASH_ACCESS_KEY: ${UNSPLASH_ACCESS_KEY} 

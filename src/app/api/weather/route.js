@@ -5,8 +5,9 @@ export async function GET(request) {
     const lat = searchParams.get('lat') || '35.6688'; // Default to Lake Isabella
     const lon = searchParams.get('lon') || '-118.2912';
     
-    // Try server-side API key first with multiple possible environment variable names
-    let apiKey = process.env.OPENWEATHER_API_KEY;
+    // Try to get the API key from environment variables
+    // First try the server-side key, then fall back to the public key
+    let apiKey = process.env.OPENWEATHER_API_KEY || process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
     
     // Log all environment variables for debugging (without values)
     console.log('Weather API: Available environment variables:', 
@@ -15,25 +16,21 @@ export async function GET(request) {
         .join(', ')
     );
     
-    // Check if we need to fall back to the public key
-    let usingPublicKey = false;
+    console.log('Weather API: API key status:', apiKey ? 'API key is set' : 'API key is missing');
     
-    console.log('Weather API: Using server-side API key:', apiKey ? 'Server API key is set' : 'Server API key is missing');
-    
-    // If server-side key is missing, fall back to public key
+    // If no API key, provide a helpful error message based on environment
     if (!apiKey) {
-      apiKey = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
-      usingPublicKey = true;
-      console.log('Weather API: Falling back to public API key:', apiKey ? 'Public API key is set' : 'Public API key is missing');
-    }
-    
-    // If still no API key, throw an error
-    if (!apiKey) {
-      throw new Error('OpenWeather API key is not configured. Please set OPENWEATHER_API_KEY in your environment variables.');
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Weather API: No API key found in local development. Please set OPENWEATHER_API_KEY in your .env.local file.');
+        throw new Error('OpenWeather API key is not configured. Please create or update your .env.local file with OPENWEATHER_API_KEY=your_api_key_here');
+      } else {
+        console.error('Weather API: OpenWeather API key is not configured in production environment.');
+        throw new Error('OpenWeather API key is not configured. Please check that OPENWEATHER_API_KEY is set in your AWS Amplify environment variables and that your amplify.yml file is properly configured to pass environment variables to Next.js API routes.');
+      }
     }
     
     const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=imperial`;
-    console.log('Weather API: Fetching from URL:', url.replace(apiKey, 'API_KEY_HIDDEN'), usingPublicKey ? '(using public key)' : '(using server key)');
+    console.log('Weather API: Fetching from URL:', url.replace(apiKey, 'API_KEY_HIDDEN'));
     
     const response = await fetch(
       url,

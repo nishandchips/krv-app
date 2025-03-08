@@ -19,7 +19,14 @@ export async function fetchWeather(location = null) {
     console.log('Client: Weather API response status:', response.status);
     
     if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+      // Try to get more detailed error information
+      try {
+        const errorData = await response.json();
+        console.error('Client: Weather API error details:', errorData);
+        throw new Error(`Weather API error: ${errorData.message || response.statusText}`);
+      } catch (parseError) {
+        throw new Error(`HTTP error! Status: ${response.status} ${response.statusText}`);
+      }
     }
     
     const data = await response.json();
@@ -37,22 +44,7 @@ export async function fetchWeather(location = null) {
     return data;
   } catch (error) {
     console.error('Client: Error fetching weather data:', error);
-    // Return fallback data if API call fails
-    return {
-      temp: 75,
-      tempMin: 65,
-      tempMax: 85,
-      humidity: 30,
-      windSpeed: 5,
-      windDirection: 180,
-      pressure: 1015,
-      description: "Sunny",
-      icon: "01d",
-      cityName: location?.name || "Lake Isabella",
-      countryCode: "US",
-      shortForecast: "High: 85°F, Low: 65°F",
-      timestamp: new Date().toISOString(),
-      locationName: location?.name || "Lake Isabella"
-    };
+    // Return null to indicate error - the UI will show an error message
+    return null;
   }
 }
