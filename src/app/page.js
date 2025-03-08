@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import DynamicLineChart from '@/components/DynamicLineChart';
-import { fetchRoadClosures } from '@/lib/caltrans';
+import { fetchRoadClosuresLCS } from '@/lib/caltrans';
 import { fetchLakeLevels } from '@/lib/cdec';
 import { fetchRiverFlow } from '@/lib/usgs';
 import { fetchWeather } from '@/lib/weather';
@@ -15,7 +15,10 @@ import RiverFlowCard from '@/components/RiverFlowCard';
 import LakeStorageCard from '@/components/LakeStorageCard';
 import RoadClosuresCard from '@/components/cards/RoadClosuresCard';
 import WeatherCard from '@/components/cards/WeatherCard';
+import TransitCard from '@/components/cards/TransitCard';
 import { locations, getDefaultLocation } from '@/lib/locations';
+import SingleCardView from '@/components/SingleCardView';
+import TiledView from '@/components/TiledView';
 
 export default function Home() {
   const [data, setData] = useState({
@@ -31,7 +34,8 @@ export default function Home() {
     weather: true,
     lakeIsabella: true,
     riverFlow: true,
-    roadClosures: true
+    roadClosures: true,
+    transit: true
   });
   const [selectedLocation, setSelectedLocation] = useState(getDefaultLocation());
   const [isMobile, setIsMobile] = useState(false);
@@ -59,7 +63,7 @@ export default function Home() {
     async function fetchData() {
       try {
         const [roadData, lakeData, riverData, weather, weatherForecast] = await Promise.all([
-          fetchRoadClosures(),
+          fetchRoadClosuresLCS(),
           fetchLakeLevels(),
           fetchRiverFlow(),
           fetchWeather(selectedLocation),
@@ -99,7 +103,7 @@ export default function Home() {
     
     // Clean up interval on component unmount
     return () => clearInterval(refreshInterval);
-  }, []);
+  }, [selectedLocation]);
 
   useEffect(() => {
     function handleResize() {
@@ -176,7 +180,7 @@ export default function Home() {
     setLoading(true);
     try {
       const [roadData, lakeData, riverData, weather, weatherForecast] = await Promise.all([
-        fetchRoadClosures(),
+        fetchRoadClosuresLCS(),
         fetchLakeLevels(),
         fetchRiverFlow(),
         fetchWeather(selectedLocation),
@@ -200,6 +204,19 @@ export default function Home() {
     }
   };
 
+  // Handle road data refresh from the RoadClosuresCard
+  const handleRoadDataRefresh = (freshRoadData) => {
+    console.log('Road data refreshed:', freshRoadData);
+    if (freshRoadData) {
+      setData(prevData => ({
+        ...prevData,
+        roadClosures: freshRoadData.roadClosures || [],
+        roadConditions: freshRoadData.roadConditions || []
+      }));
+      setLastRefresh(new Date());
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[var(--background)] flex flex-col">
       <DynamicBackground />
@@ -212,64 +229,43 @@ export default function Home() {
       {/* Main content */}
       <div className="flex-1 py-4 md:py-8 px-4 md:px-8 lg:px-12">
         <div className="container mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-            {/* Road Closures Card */}
-            {activeCards.roadClosures && (
-              <div className={`${cardSize.width} ${cardSize.height}`}>
-                <RoadClosuresCard data={{ roadClosures: data.roadClosures, roadConditions: data.roadConditions, timestamp: lastRefresh }} />
-              </div>
-            )}
-
-            {/* Lake Storage Card */}
-            {activeCards.lakeIsabella && (
-              <div className={`${cardSize.width} ${cardSize.height}`}>
-                <LakeStorageCard data={recentLakeData} />
-              </div>
-            )}
-
-            {/* River Flow Card */}
-            {activeCards.riverFlow && (
-              <div className={`${cardSize.width} ${cardSize.height} relative`}>
-                <RiverFlowCard
-                  data={data.riverData}
-                  cardContentState={cardContentState}
-                  navigateCardContent={navigateCardContent}
-                  isMobile={isMobile}
-                />
-                <CardNavigation
-                  onPrev={() => navigateCardContent('riverFlow', 'prev')}
-                  onNext={() => navigateCardContent('riverFlow', 'next')}
-                />
-              </div>
-            )}
-
-            {/* Weather Card */}
-            {activeCards.weather && (
-              <div className={`${cardSize.width} ${cardSize.height} relative`}>
-                <WeatherCard
-                  data={data.weather}
-                  weatherForecast={data.weatherForecast}
-                  cardContentState={cardContentState}
-                  navigateCardContent={navigateCardContent}
-                  isMobile={isMobile}
-                  onLocationChange={setSelectedLocation}
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Add a small refresh indicator */}
-          <div className="fixed bottom-2 right-2 text-xs text-gray-400 bg-black/50 p-1 rounded z-50">
-            Last updated: {lastRefresh.toLocaleTimeString()}
-            <button
-              onClick={handleManualRefresh}
-              className="ml-2 bg-blue-500 text-white px-2 py-0.5 rounded text-xs"
-              aria-label="Refresh data"
-            >
-              Refresh
-            </button>
-          </div>
+          {/* Use either the direct card rendering or the TiledView/SingleCardView, not both */}
+          {isMobile ? (
+            <SingleCardView 
+              data={{
+                ...data,
+                timestamp: lastRefresh
+              }}
+              activeCards={activeCards}
+              currentCardIndex={cardContentState.riverFlow.index}
+              onNavigate={navigateCardContent}
+              cardSize={cardSize}
+              onRefreshRoadData={handleRoadDataRefresh}
+            />
+          ) : (
+            <TiledView 
+              data={{
+                ...data,
+                timestamp: lastRefresh
+              }}
+              activeCards={activeCards} 
+              cardSize={cardSize}
+              onRefreshRoadData={handleRoadDataRefresh}
+            />
+          )}
         </div>
+      </div>
+      
+      {/* Footer with last refresh time */}
+      <div className="bg-black/70 backdrop-blur-md text-center py-2 text-xs text-gray-400">
+        <p>Last updated: {lastRefresh.toLocaleString()}</p>
+        <button 
+          onClick={handleManualRefresh}
+          className="mt-1 px-2 py-1 bg-blue-900/50 hover:bg-blue-900/70 rounded text-blue-300 text-xs transition-colors"
+          disabled={loading}
+        >
+          {loading ? 'Refreshing...' : 'Refresh Data'}
+        </button>
       </div>
     </div>
   );

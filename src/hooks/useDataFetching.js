@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchRoadClosures } from '@/lib/api/caltrans';
+import { fetchRoadClosures } from '@/lib/caltrans';
 import { fetchLakeLevels } from '@/lib/api/cdec';
 import { fetchRiverFlow } from '@/lib/api/usgs';
 import { fetchWeather } from '@/lib/api/weather';

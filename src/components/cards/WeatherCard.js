@@ -1,7 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from 'react';
 import { locations } from '@/lib/locations';
-import CardNavigation from '@/components/CardNavigation';
 
 export default function WeatherCard({ data, weatherForecast, cardContentState, navigateCardContent, isMobile, onLocationChange }) {
   const currentView = cardContentState?.weather?.index || 0;
@@ -13,7 +12,7 @@ export default function WeatherCard({ data, weatherForecast, cardContentState, n
       <CardHeader className="flex flex-row items-center justify-between p-3 pb-1 shrink-0">
         <CardTitle className="text-lg">Weather</CardTitle>
         <div className="relative">
-          <select 
+          <select
             className="bg-gray-800 text-white border border-gray-700 rounded p-1 text-xs"
             onChange={(e) => {
               const selectedLoc = locations.find(loc => loc.id === e.target.value);
@@ -33,7 +32,7 @@ export default function WeatherCard({ data, weatherForecast, cardContentState, n
           </select>
         </div>
       </CardHeader>
-      
+
       <CardContent className="p-3 flex-grow flex flex-col relative overflow-y-auto">
         {!hasWeatherData && (
           <div className="flex flex-col items-center justify-center h-full">
@@ -58,6 +57,7 @@ export default function WeatherCard({ data, weatherForecast, cardContentState, n
                     <p className="text-4xl font-bold">{data.temp ? `${Math.round(data.temp)}°F` : 'N/A'}</p>
                   </div>
                   <p className="text-base capitalize">{data.description || 'Weather unavailable'}</p>
+
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 text-center">
@@ -72,15 +72,17 @@ export default function WeatherCard({ data, weatherForecast, cardContentState, n
                   <div className="bg-gray-800/30 p-2 rounded">
                     <p className="text-sm text-blue-400">High</p>
                     <p className="text-lg">{data.tempMax ? `${Math.round(data.tempMax)}°F` : 'N/A'}</p>
+
                   </div>
                   <div className="bg-gray-800/30 p-2 rounded">
                     <p className="text-sm text-blue-400">Low</p>
                     <p className="text-lg">{data.tempMin ? `${Math.round(data.tempMin)}°F` : 'N/A'}</p>
+
                   </div>
                 </div>
               </div>
             )}
-            
+
             {currentView === 1 && hasForecastData && (
               <div className="flex-grow overflow-y-auto">
                 <p className="text-center text-blue-400 mb-2 text-sm">5-Day Forecast</p>
@@ -109,20 +111,35 @@ export default function WeatherCard({ data, weatherForecast, cardContentState, n
                 </div>
               </div>
             )}
-            
+
             {currentView === 1 && !hasForecastData && (
               <div className="flex flex-col items-center justify-center flex-grow">
                 <p className="text-amber-400 mb-2">Forecast Unavailable</p>
                 <p className="text-sm text-center">Unable to load forecast data</p>
               </div>
             )}
-            
-            {hasWeatherData && (
-              <CardNavigation 
-                onPrev={() => navigateCardContent('weather', 'prev')}
-                onNext={() => navigateCardContent('weather', 'next')}
-              />
-            )}
+
+            {/* Navigation arrows in the middle of the card */}
+            <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-2 pointer-events-none">
+              <button
+                onClick={() => navigateCardContent('weather', 'prev')}
+                className="h-10 w-10 rounded-full bg-black/50 text-white flex items-center justify-center pointer-events-auto"
+                aria-label="Previous content"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button
+                onClick={() => navigateCardContent('weather', 'next')}
+                className="h-10 w-10 rounded-full bg-black/50 text-white flex items-center justify-center pointer-events-auto"
+                aria-label="Next content"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
           </>
         )}
       </CardContent>

@@ -1,0 +1,275 @@
+{
+  "150": {
+    "route_id": "150",
+    "route_short_name": "150",
+    "route_long_name": "Lake Isabella - Bakersfield",
+    "trips": [
+      {
+        "trip_id": "150_weekday_outbound_1",
+        "service_id": "weekday",
+        "trip_headsign": "To Bakersfield",
+        "direction_id": "0",
+        "stops": [
+          {
+            "stop_id": "KRV_1",
+            "stop_name": "Lake Isabella Senior Center",
+            "arrival_time": "06:00:00",
+            "departure_time": "06:00:00",
+            "stop_sequence": "1",
+            "stop_lat": "35.6688",
+            "stop_lon": "-118.4731"
+          },
+          {
+            "stop_id": "KRV_2",
+            "stop_name": "Kernville Circle Park",
+            "arrival_time": "06:15:00",
+            "departure_time": "06:15:00",
+            "stop_sequence": "2",
+            "stop_lat": "35.7550",
+            "stop_lon": "-118.4250"
+          },
+          {
+            "stop_id": "KRV_3",
+            "stop_name": "Wofford Heights Blvd & Evans Rd",
+            "arrival_time": "06:30:00",
+            "departure_time": "06:30:00",
+            "stop_sequence": "3",
+            "stop_lat": "35.7058",
+            "stop_lon": "-118.4583"
+          },
+          {
+            "stop_id": "BKF_1",
+            "stop_name": "Bakersfield GET Downtown Transit Center",
+            "arrival_time": "08:00:00",
+            "departure_time": "08:00:00",
+            "stop_sequence": "4",
+            "stop_lat": "35.3733",
+            "stop_lon": "-119.0187"
+          }
+        ]
+      },
+      {
+        "trip_id": "150_weekday_inbound_1",
+        "service_id": "weekday",
+        "trip_headsign": "To Lake Isabella",
+        "direction_id": "1",
+        "stops": [
+          {
+            "stop_id": "BKF_1",
+            "stop_name": "Bakersfield GET Downtown Transit Center",
+            "arrival_time": "16:00:00",
+            "departure_time": "16:00:00",
+            "stop_sequence": "1",
+            "stop_lat": "35.3733",
+            "stop_lon": "-119.0187"
+          },
+          {
+            "stop_id": "KRV_3",
+            "stop_name": "Wofford Heights Blvd & Evans Rd",
+            "arrival_time": "17:30:00",
+            "departure_time": "17:30:00",
+            "stop_sequence": "2",
+            "stop_lat": "35.7058",
+            "stop_lon": "-118.4583"
+          },
+          {
+            "stop_id": "KRV_2",
+            "stop_name": "Kernville Circle Park",
+            "arrival_time": "17:45:00",
+            "departure_time": "17:45:00",
+            "stop_sequence": "3",
+            "stop_lat": "35.7550",
+            "stop_lon": "-118.4250"
+          },
+          {
+            "stop_id": "KRV_1",
+            "stop_name": "Lake Isabella Senior Center",
+            "arrival_time": "18:00:00",
+            "departure_time": "18:00:00",
+            "stop_sequence": "4",
+            "stop_lat": "35.6688",
+            "stop_lon": "-118.4731"
+          }
+        ]
+      }
+    ],
+    "fares": [
+      {
+        "price": "5.00",
+        "currency_type": "USD",
+        "payment_method": "1",
+        "transfers": "0"
+      }
+    ]
+  },
+  "220": {
+    "route_id": "220",
+    "route_short_name": "220",
+    "route_long_name": "Lake Isabella - Kernville",
+    "trips": [
+      {
+        "trip_id": "220_weekday_outbound_1",
+        "service_id": "weekday",
+        "trip_headsign": "To Kernville",
+        "direction_id": "0",
+        "stops": [
+          {
+            "stop_id": "KRV_1",
+            "stop_name": "Lake Isabella Senior Center",
+            "arrival_time": "09:00:00",
+            "departure_time": "09:00:00",
+            "stop_sequence": "1",
+            "stop_lat": "35.6688",
+            "stop_lon": "-118.4731"
+          },
+          {
+            "stop_id": "KRV_4",
+            "stop_name": "Mountain Mesa Post Office",
+            "arrival_time": "09:15:00",
+            "departure_time": "09:15:00",
+            "stop_sequence": "2",
+            "stop_lat": "35.6450",
+            "stop_lon": "-118.4000"
+          },
+          {
+            "stop_id": "KRV_2",
+            "stop_name": "Kernville Circle Park",
+            "arrival_time": "09:45:00",
+            "departure_time": "09:45:00",
+            "stop_sequence": "3",
+            "stop_lat": "35.7550",
+            "stop_lon": "-118.4250"
+          }
+        ]
+      },
+      {
+        "trip_id": "220_weekday_inbound_1",
+        "service_id": "weekday",
+        "trip_headsign": "To Lake Isabella",
+        "direction_id": "1",
+        "stops": [
+          {
+            "stop_id": "KRV_2",
+            "stop_name": "Kernville Circle Park",
+            "arrival_time": "14:00:00",
+            "departure_time": "14:00:00",
+            "stop_sequence": "1",
+            "stop_lat": "35.7550",
+            "stop_lon": "-118.4250"
+          },
+          {
+            "stop_id": "KRV_4",
+            "stop_name": "Mountain Mesa Post Office",
+            "arrival_time": "14:30:00",
+            "departure_time": "14:30:00",
+            "stop_sequence": "2",
+            "stop_lat": "35.6450",
+            "stop_lon": "-118.4000"
+          },
+          {
+            "stop_id": "KRV_1",
+            "stop_name": "Lake Isabella Senior Center",
+            "arrival_time": "14:45:00",
+            "departure_time": "14:45:00",
+            "stop_sequence": "3",
+            "stop_lat": "35.6688",
+            "stop_lon": "-118.4731"
+          }
+        ]
+      }
+    ],
+    "fares": [
+      {
+        "price": "2.50",
+        "currency_type": "USD",
+        "payment_method": "1",
+        "transfers": "0"
+      }
+    ]
+  },
+  "227": {
+    "route_id": "227",
+    "route_short_name": "227",
+    "route_long_name": "Lake Isabella - Bodfish - Havilah",
+    "trips": [
+      {
+        "trip_id": "227_weekday_outbound_1",
+        "service_id": "weekday",
+        "trip_headsign": "To Havilah",
+        "direction_id": "0",
+        "stops": [
+          {
+            "stop_id": "KRV_1",
+            "stop_name": "Lake Isabella Senior Center",
+            "arrival_time": "10:00:00",
+            "departure_time": "10:00:00",
+            "stop_sequence": "1",
+            "stop_lat": "35.6688",
+            "stop_lon": "-118.4731"
+          },
+          {
+            "stop_id": "KRV_5",
+            "stop_name": "Bodfish Post Office",
+            "arrival_time": "10:15:00",
+            "departure_time": "10:15:00",
+            "stop_sequence": "2",
+            "stop_lat": "35.5833",
+            "stop_lon": "-118.5000"
+          },
+          {
+            "stop_id": "KRV_6",
+            "stop_name": "Havilah Historic School",
+            "arrival_time": "10:45:00",
+            "departure_time": "10:45:00",
+            "stop_sequence": "3",
+            "stop_lat": "35.5167",
+            "stop_lon": "-118.5167"
+          }
+        ]
+      },
+      {
+        "trip_id": "227_weekday_inbound_1",
+        "service_id": "weekday",
+        "trip_headsign": "To Lake Isabella",
+        "direction_id": "1",
+        "stops": [
+          {
+            "stop_id": "KRV_6",
+            "stop_name": "Havilah Historic School",
+            "arrival_time": "15:00:00",
+            "departure_time": "15:00:00",
+            "stop_sequence": "1",
+            "stop_lat": "35.5167",
+            "stop_lon": "-118.5167"
+          },
+          {
+            "stop_id": "KRV_5",
+            "stop_name": "Bodfish Post Office",
+            "arrival_time": "15:30:00",
+            "departure_time": "15:30:00",
+            "stop_sequence": "2",
+            "stop_lat": "35.5833",
+            "stop_lon": "-118.5000"
+          },
+          {
+            "stop_id": "KRV_1",
+            "stop_name": "Lake Isabella Senior Center",
+            "arrival_time": "15:45:00",
+            "departure_time": "15:45:00",
+            "stop_sequence": "3",
+            "stop_lat": "35.6688",
+            "stop_lon": "-118.4731"
+          }
+        ]
+      }
+    ],
+    "fares": [
+      {
+        "price": "3.00",
+        "currency_type": "USD",
+        "payment_method": "1",
+        "transfers": "0"
+      }
+    ]
+  }
+} 

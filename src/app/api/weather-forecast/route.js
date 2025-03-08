@@ -27,15 +27,9 @@ export async function GET(request) {
       console.log('Weather Forecast API: Falling back to public API key:', apiKey ? 'Public API key is set' : 'Public API key is missing');
     }
     
-    // If still no API key, use the hardcoded key from the Amplify environment
+    // If still no API key, throw an error
     if (!apiKey) {
-      // This is the key from your Amplify environment variables
-      apiKey = 'afca1dbf0f148b90d292e7ac2da2e959';
-      console.log('Weather Forecast API: Falling back to hardcoded API key as last resort');
-    }
-    
-    if (!apiKey) {
-      throw new Error('OpenWeather API key is not configured');
+      throw new Error('OpenWeather API key is not configured. Please set OPENWEATHER_API_KEY in your environment variables.');
     }
     
     const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=imperial&appid=${apiKey}`;
