@@ -10,15 +10,8 @@ import { fetchWeather } from '@/lib/weather';
 import { fetchWeatherForecast } from '@/lib/weatherForecast';
 import DynamicBackground from '@/components/DynamicBackground';
 import Logo from '@/components/Logo';
-import CardNavigation from '@/components/CardNavigation';
-import RiverFlowCard from '@/components/RiverFlowCard';
-import LakeStorageCard from '@/components/LakeStorageCard';
-import RoadClosuresCard from '@/components/cards/RoadClosuresCard';
-import WeatherCard from '@/components/cards/WeatherCard';
-import TransitCard from '@/components/cards/TransitCard';
-import { locations, getDefaultLocation } from '@/lib/locations';
-import SingleCardView from '@/components/SingleCardView';
 import TiledView from '@/components/TiledView';
+import { locations, getDefaultLocation } from '@/lib/locations';
 
 export default function Home() {
   const [data, setData] = useState({
@@ -38,7 +31,6 @@ export default function Home() {
     transit: true
   });
   const [selectedLocation, setSelectedLocation] = useState(getDefaultLocation());
-  const [isMobile, setIsMobile] = useState(false);
   const [lastRefresh, setLastRefresh] = useState(new Date());
   const [cardContentState, setCardContentState] = useState({
     weather: { index: 0, total: 2 },
@@ -105,16 +97,6 @@ export default function Home() {
     return () => clearInterval(refreshInterval);
   }, [selectedLocation]);
 
-  useEffect(() => {
-    function handleResize() {
-      setIsMobile(window.innerWidth < 768);
-    }
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
   // Refetch weather data when location changes
   useEffect(() => {
     if (!loading) {
@@ -154,7 +136,7 @@ export default function Home() {
   const calculateCardSize = () => {
     return {
       width: 'w-full',
-      height: isMobile ? 'auto min-h-[280px] mb-4' : 'md:h-[calc(50vh-3rem)]'
+      height: 'md:h-[calc(50vh-3rem)]'
     };
   };
 
@@ -229,30 +211,15 @@ export default function Home() {
       {/* Main content */}
       <div className="flex-1 py-4 md:py-8 px-4 md:px-8 lg:px-12">
         <div className="container mx-auto">
-          {/* Use either the direct card rendering or the TiledView/SingleCardView, not both */}
-          {isMobile ? (
-            <SingleCardView 
-              data={{
-                ...data,
-                timestamp: lastRefresh
-              }}
-              activeCards={activeCards}
-              currentCardIndex={cardContentState.riverFlow.index}
-              onNavigate={navigateCardContent}
-              cardSize={cardSize}
-              onRefreshRoadData={handleRoadDataRefresh}
-            />
-          ) : (
-            <TiledView 
-              data={{
-                ...data,
-                timestamp: lastRefresh
-              }}
-              activeCards={activeCards} 
-              cardSize={cardSize}
-              onRefreshRoadData={handleRoadDataRefresh}
-            />
-          )}
+          <TiledView 
+            data={{
+              ...data,
+              timestamp: lastRefresh
+            }}
+            activeCards={activeCards} 
+            cardSize={cardSize}
+            onRefreshRoadData={handleRoadDataRefresh}
+          />
         </div>
       </div>
       

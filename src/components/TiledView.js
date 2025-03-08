@@ -46,7 +46,6 @@ export default function TiledView({ data, activeCards, cardSize, onRefreshRoadDa
           <RiverFlowCard 
             data={riverData}
             cardContentState={defaultCardContentState}
-            isMobile={false}
           />
         </div>
       )}

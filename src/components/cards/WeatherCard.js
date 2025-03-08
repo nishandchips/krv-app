@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from 'react';
 import { locations } from '@/lib/locations';
 
-export default function WeatherCard({ data, weatherForecast, cardContentState, navigateCardContent, isMobile, onLocationChange }) {
+export default function WeatherCard({ data, weatherForecast, cardContentState, navigateCardContent, onLocationChange }) {
   const currentView = cardContentState?.weather?.index || 0;
   const hasWeatherData = data && (data.temp !== undefined);
   const hasForecastData = weatherForecast && weatherForecast.length > 0;

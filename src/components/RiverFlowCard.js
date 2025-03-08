@@ -8,8 +8,7 @@ import { getFlowStatusColor, getFlowStatusText } from '@/lib/usgs';
 const RiverFlowCard = ({ 
   data, 
   cardContentState, 
-  navigateCardContent, 
-  isMobile 
+  navigateCardContent
 }) => {
   const [timeRange, setTimeRange] = useState('24h'); // '24h', '7d'
   
