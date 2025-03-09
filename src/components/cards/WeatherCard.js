@@ -31,7 +31,7 @@ export default function WeatherCard({ data, weatherForecast, cardContentState, n
             sourceName="OpenWeather API" 
             sourceUrl="https://openweathermap.org/api" 
             className="ml-2 text-sm"
-            position="bottom-left"
+            position="bottom-right"
           />
         </div>
         <div className="relative">

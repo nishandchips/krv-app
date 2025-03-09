@@ -32,7 +32,7 @@ export default function LakeStorageCard({ data }) {
             sourceName="California Data Exchange Center (CDEC)" 
             sourceUrl="https://cdec.water.ca.gov/reservoir.html" 
             className="ml-2 text-sm"
-            position="bottom-left"
+            position="bottom-right"
           />
         </div>
         <button 

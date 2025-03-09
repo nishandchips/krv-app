@@ -162,7 +162,7 @@ const TransitCard = () => {
             sourceName="Kern Transit" 
             sourceUrl="https://kerntransit.org/" 
             className="ml-2 text-sm"
-            position="bottom-left"
+            position="bottom-right"
           />
         </div>
       </CardHeader>

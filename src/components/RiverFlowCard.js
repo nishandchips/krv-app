@@ -58,7 +58,7 @@ const RiverFlowCard = ({
               sourceName="USGS Water Data" 
               sourceUrl="https://waterdata.usgs.gov/nwis/rt" 
               className="ml-2 text-sm"
-              position="bottom-left"
+              position="bottom-right"
             />
           </div>
           <div className="flex text-xs space-x-1">

@@ -11,8 +11,10 @@ import { useState, useRef, useEffect } from 'react';
  */
 export default function InfoButton({ sourceName, sourceUrl, className = '', position = 'bottom-right' }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [popupPosition, setPopupPosition] = useState(position);
   const popupRef = useRef(null);
   const buttonRef = useRef(null);
+  const containerRef = useRef(null);
 
   // Handle click outside to close the popup
   useEffect(() => {
@@ -34,15 +36,56 @@ export default function InfoButton({ sourceName, sourceUrl, className = '', posi
     };
   }, [isOpen]);
 
+  // Adjust popup position based on available space when opened
+  useEffect(() => {
+    if (isOpen && popupRef.current && containerRef.current) {
+      const buttonRect = buttonRef.current.getBoundingClientRect();
+      const popupRect = popupRef.current.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      
+      // Check if popup would be cut off on the left
+      const isLeftCutOff = buttonRect.left < popupRect.width && position.includes('left');
+      // Check if popup would be cut off on the right
+      const isRightCutOff = buttonRect.right + popupRect.width > viewportWidth && position.includes('right');
+      // Check if popup would be cut off on the top
+      const isTopCutOff = buttonRect.top < popupRect.height && position.includes('top');
+      // Check if popup would be cut off on the bottom
+      const isBottomCutOff = buttonRect.bottom + popupRect.height > viewportHeight && position.includes('bottom');
+      
+      // Determine the best position based on available space
+      let newPosition = position;
+      
+      if (isLeftCutOff) {
+        newPosition = newPosition.replace('left', 'right');
+      } else if (isRightCutOff) {
+        newPosition = newPosition.replace('right', 'left');
+      }
+      
+      if (isTopCutOff) {
+        newPosition = newPosition.replace('top', 'bottom');
+      } else if (isBottomCutOff) {
+        newPosition = newPosition.replace('bottom', 'top');
+      }
+      
+      // For mobile devices, always prefer right positioning to avoid left cutoff
+      if (viewportWidth < 640 && newPosition.includes('left')) {
+        newPosition = newPosition.replace('left', 'right');
+      }
+      
+      setPopupPosition(newPosition);
+    }
+  }, [isOpen, position]);
+
   // Determine popup position classes
   const getPositionClasses = () => {
-    switch (position) {
+    switch (popupPosition) {
       case 'top-left':
-        return 'bottom-full right-full mb-2 mr-2';
+        return 'bottom-full right-0 mb-2';
       case 'top-right':
         return 'bottom-full left-0 mb-2';
       case 'bottom-left':
-        return 'top-full right-full mt-2 mr-2';
+        return 'top-full right-0 mt-2';
       case 'bottom-right':
       default:
         return 'top-full left-0 mt-2';
@@ -50,7 +93,7 @@ export default function InfoButton({ sourceName, sourceUrl, className = '', posi
   };
 
   return (
-    <div className="relative inline-block">
+    <div className="relative inline-block" ref={containerRef}>
       <button
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
@@ -63,7 +106,7 @@ export default function InfoButton({ sourceName, sourceUrl, className = '', posi
       {isOpen && (
         <div 
           ref={popupRef}
-          className={`absolute z-50 w-64 bg-gray-800/95 backdrop-blur-sm border border-gray-700 rounded-md shadow-lg p-3 text-xs ${getPositionClasses()}`}
+          className={`absolute z-50 w-64 max-w-[90vw] bg-gray-800/95 backdrop-blur-sm border border-gray-700 rounded-md shadow-lg p-3 text-xs ${getPositionClasses()}`}
         >
           <div className="flex justify-between items-start mb-2">
             <h3 className="font-medium text-white">Data Source</h3>

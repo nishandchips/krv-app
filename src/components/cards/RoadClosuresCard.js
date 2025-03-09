@@ -49,7 +49,7 @@ export default function RoadClosuresCard({ data, className, onRefresh }) {
             sourceName="Caltrans Lane Closure System" 
             sourceUrl="https://lcswebreports.dot.ca.gov/" 
             className="ml-2 text-sm"
-            position="bottom-left"
+            position="bottom-right"
           />
         </div>
         <div className="flex items-center">
